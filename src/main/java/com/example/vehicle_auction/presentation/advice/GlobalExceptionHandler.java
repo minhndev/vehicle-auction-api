@@ -4,6 +4,7 @@ import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.presentation.response.ApiError;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -12,13 +13,15 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Locale;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(AppException.class)
-    public ResponseEntity<ApiError> handleAppException(AppException ex) {
+    public ResponseEntity<ApiError> handleAppException(AppException ex, Locale locale) {
         ErrorCode errorCode = ex.getErrorCode();
+
         ApiError apiError = ApiError.builder()
                 .code(errorCode.getCode())
                 .message(errorCode.getMessage())

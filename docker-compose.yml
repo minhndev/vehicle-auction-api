@@ -1,0 +1,63 @@
+version: '3.8'
+services:
+  db-postgres:
+    image: postgres:16-alpine
+    container_name: auction-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auction-network
+
+  db-mongodb:
+    image: mongo:6.0
+    container_name: auction-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - auction-network
+
+  db-redis:
+    image: redis:7-alpine
+    container_name: auction-redis
+    restart: always
+    ports:
+      - "${REDIS_PORT}:6379"
+    networks:
+      - auction-network
+
+  app-service:
+    build: .
+    container_name: auction-app
+    restart: on-failure
+    depends_on:
+      - db-postgres
+      - db-mongodb
+      - db-redis
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    env_file:
+      - .env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgres:5432/${POSTGRES_DB}
+      SPRING_DATA_MONGODB_URI: mongodb://db-mongodb:27017/auction_logs
+      SPRING_DATA_REDIS_HOST: db-redis
+    networks:
+      - auction-network
+
+networks:
+  auction-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:

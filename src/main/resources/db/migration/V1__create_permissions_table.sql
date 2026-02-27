@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS permissions(
+    id UUID primary key,
+    group_name VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description VARCHAR(250) NOT NULL,
+    is_system BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    created_by VARCHAR(150) NOT NULL DEFAULT 'SYSTEM',
+    updated_by VARCHAR(150)
+);
+
+CREATE INDEX idx_permissions_group_name ON permissions(group_name);

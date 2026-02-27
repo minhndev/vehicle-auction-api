@@ -23,7 +23,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html")
                         .permitAll()
-                        .requestMatchers("/auth/**")
+                        .requestMatchers("/roles/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()

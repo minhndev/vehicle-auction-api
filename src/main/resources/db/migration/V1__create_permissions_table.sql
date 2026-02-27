@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS permissions(
-    id UUID primary key,
+    id UUID PRIMARY KEY,
     group_name VARCHAR(50) NOT NULL,
     name VARCHAR(50) NOT NULL UNIQUE,
     description VARCHAR(250) NOT NULL,

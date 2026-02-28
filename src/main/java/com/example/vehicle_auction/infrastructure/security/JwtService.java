@@ -23,7 +23,7 @@ public class JwtService {
                 jwtProperties.accessExpiration(), jwtProperties.accessSecret());
     }
 
-    private String generateRefreshToken(UserDetails userDetails) {
+    public String generateRefreshToken(UserDetails userDetails) {
         return buildToken(Map.of(), userDetails.getUsername(),
                 jwtProperties.refreshExpiration(), jwtProperties.refreshSecret());
     }
@@ -57,7 +57,7 @@ public class JwtService {
         return Jwts.parser()
                 .setSigningKey(getSigningKey(secret))
                 .build()
-                .parseClaimsJwt(token)
+                .parseClaimsJws(token)
                 .getBody();
     }
 

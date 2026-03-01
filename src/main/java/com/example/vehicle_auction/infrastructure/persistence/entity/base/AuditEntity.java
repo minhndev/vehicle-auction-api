@@ -25,10 +25,10 @@ public abstract class AuditEntity extends BaseIdEntity {
     private LocalDateTime updatedAt;
 
     @CreatedBy
-    @Column(name = "created_by", updatable = false, nullable = false)
+    @Column(name = "created_by", updatable = false, nullable = false, length = 150)
     private String createdBy;
 
     @LastModifiedBy
-    @Column(name = "updated_by")
+    @Column(name = "updated_by", length = 150)
     private String updatedBy;
 }

@@ -27,5 +27,9 @@ public record RoleResponse(
         @Schema(example = "SYSTEM")
         String createdBy,
         @Schema(example = "SYSTEM")
-        String updatedBy) {
+        String updatedBy,
+        @Schema(example = "true")
+        boolean deleted,
+        @Schema(example = "2024-01-01T12:00:00")
+        LocalDateTime deletedAt) {
 }

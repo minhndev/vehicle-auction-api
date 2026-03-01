@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.util.Set;
 import java.util.UUID;
 
-@Schema(description = "Request body for creating or updating a role")
+@Schema(description = "Request body for creating a role")
 public record RoleRequest(
         @Schema(description = "Unique name of the role", example = "MANAGER")
         @NotBlank(message = "{role.name.required}")

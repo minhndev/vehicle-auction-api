@@ -37,7 +37,7 @@ public record RegisterRequest(
         String identityNumber,
 
         @Schema(description = "User's birthdate", example = "1990-01-01")
-        @NotBlank(message = "{user.birthdate.required}")
+        @NotNull(message = "{user.birthdate.required}")
         LocalDate birthdate,
 
         @Schema(description = "User's gender", example = "MALE")

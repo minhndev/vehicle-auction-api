@@ -7,8 +7,8 @@ import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Permission;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
-import com.example.vehicle_auction.infrastructure.persistence.repository.PermissionRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.RoleRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaPermissionRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,18 +20,18 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class CreateRoleUseCase {
-    private final RoleRepository roleRepository;
-    private final PermissionRepository permissionRepository;
+    private final JpaRoleRepository jpaRoleRepository;
+    private final JpaPermissionRepository jpaPermissionRepository;
     private final RoleMapper roleMapper;
 
     public RoleResponse execute(RoleRequest req) {
-        if (roleRepository.existsByName(req.name()))
+        if (jpaRoleRepository.existsByName(req.name()))
             throw new AppException(ErrorCode.ROLE_ALREADY_EXISTS);
         Role role = roleMapper.toEntity(req);
         if (req.permissionIds() != null) {
-            List<Permission> permissions = permissionRepository.findAllById(req.permissionIds());
+            List<Permission> permissions = jpaPermissionRepository.findAllById(req.permissionIds());
             role.setPermissions(new HashSet<>(permissions));
         }
-        return roleMapper.toResponse(roleRepository.save(role));
+        return roleMapper.toResponse(jpaRoleRepository.save(role));
     }
 }

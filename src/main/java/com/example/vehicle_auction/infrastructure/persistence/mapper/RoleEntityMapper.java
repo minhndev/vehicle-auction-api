@@ -7,7 +7,7 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(
         componentModel = "spring",
-        uses = {PermissionMapper.class},
+        uses = {PermissionEntityMapper.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface RoleEntityMapper {

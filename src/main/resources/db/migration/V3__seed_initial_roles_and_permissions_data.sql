@@ -15,8 +15,8 @@ VALUES
 
 INSERT INTO roles (id, name, description, is_system)
 VALUES
-(gen_random_uuid(), 'ADMIN', 'System Administrator with full access', true);
-(gen_random_uuid(), 'USER', 'The user has permissions to participate in the auction.', true)
+(gen_random_uuid(), 'ADMIN', 'System Administrator with full access', true),
+(gen_random_uuid(), 'USER', 'The user has permissions to participate in the auction.', true);
 
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'ADMIN';

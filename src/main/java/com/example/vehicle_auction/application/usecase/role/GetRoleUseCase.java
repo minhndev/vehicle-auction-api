@@ -5,7 +5,7 @@ import com.example.vehicle_auction.application.mapper.RoleMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
-import com.example.vehicle_auction.infrastructure.persistence.repository.RoleRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,16 +18,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class GetRoleUseCase {
-    private final RoleRepository roleRepository;
+    private final JpaRoleRepository jpaRoleRepository;
     private final RoleMapper roleMapper;
 
     public Page<RoleResponse> getAll(Pageable pageable) {
-        Page<Role> rolePage = roleRepository.findAll(pageable);
+        Page<Role> rolePage = jpaRoleRepository.findAll(pageable);
         return rolePage.map(roleMapper::toResponse);
     }
 
     public RoleResponse getById(UUID id) {
-        Role role = roleRepository.findById(id)
+        Role role = jpaRoleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
         return roleMapper.toResponse(role);
     }

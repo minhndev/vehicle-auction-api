@@ -22,8 +22,8 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class AuthUseCase {
-    private final AccountRepository accountRepository;
-    private final UserRepository userRepository;
+    private final AccountRepository AccountRepository;
+    private final UserRepository UserRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
@@ -33,7 +33,7 @@ public class AuthUseCase {
         if (!req.password().equals(req.confirmPassword()))
             throw new AppException(ErrorCode.CONFIRM_PASSWORD_INVALID);
 
-        if (accountRepository.existsByEmail(req.email()))
+        if (AccountRepository.existsByEmail(req.email()))
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
 
         AccountModel account = new AccountModel();
@@ -55,25 +55,25 @@ public class AuthUseCase {
         user.setAddress(req.address());
         user.setAvatarURL(req.avatarURL());
 
-//        accountRepository.save(account);
-        userRepository.save(user);
+//        AccountRepository.save(account);
+        UserRepository.save(user);
 
         return generateAuthResponse(account.getEmail());
     }
 
     @Transactional
     public AuthResponse login(LoginRequest req) {
-        AccountModel account = accountRepository.findByEmail(req.email())
+        AccountModel account = AccountRepository.findByEmail(req.email())
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED));
 
         if (!passwordEncoder.matches(req.password(), account.getPassword())) {
             account.recordFailedLogin();
-            accountRepository.save(account);
+            AccountRepository.save(account);
             throw new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED);
         }
 
         account.recordSuccessfulLogin();
-        accountRepository.save(account);
+        AccountRepository.save(account);
 
         return generateAuthResponse(account.getEmail());
     }

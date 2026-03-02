@@ -30,7 +30,9 @@ public enum ErrorCode {
     INVALID_AUCTION_TIME("AUC_002", "auction.time.invalid"),
     AUCTION_OVERLAPS("AUC_003", "auction.overlaps"),
     AUCTION_NOT_ACTIVE("AUC_004", "auction.not.active"),
+
     DEPOSIT_REQUIRED("BID_001", "bid.deposit.required"),
+    DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid"),
     BID_AMOUNT_TOO_LOW("BID_002", "bid.amount.too.low"),
     ACCOUNT_UNAUTHORIZED("ACCOUNT_401", "account.unauthorized"),
     REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized");

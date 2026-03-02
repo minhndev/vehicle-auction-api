@@ -28,6 +28,7 @@ public class AuthUseCase {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
+    @Transactional
     public AuthResponse register(RegisterRequest req) {
         if (!req.password().equals(req.confirmPassword()))
             throw new AppException(ErrorCode.CONFIRM_PASSWORD_INVALID);
@@ -54,7 +55,7 @@ public class AuthUseCase {
         user.setAddress(req.address());
         user.setAvatarURL(req.avatarURL());
 
-        accountRepository.save(account);
+//        accountRepository.save(account);
         userRepository.save(user);
 
         return generateAuthResponse(account.getEmail());
@@ -66,7 +67,7 @@ public class AuthUseCase {
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED));
 
         if (!passwordEncoder.matches(req.password(), account.getPassword())) {
-            account.recordFailedLogin(); // Gọi Rich Domain Logic
+            account.recordFailedLogin();
             accountRepository.save(account);
             throw new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED);
         }

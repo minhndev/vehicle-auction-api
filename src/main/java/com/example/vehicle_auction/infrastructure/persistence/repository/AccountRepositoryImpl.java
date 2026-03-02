@@ -23,9 +23,15 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public AccountModel save(AccountModel accountModel) {
-        Account entity = accountMapper.toEntity(accountModel);
-        Account savedEntity = jpaAccountRepository.save(entity);
-        return accountMapper.toDomain(savedEntity);
+        if (accountModel.getId() != null && jpaAccountRepository.existsById(accountModel.getId())) {
+            Account existingEntity = jpaAccountRepository.findById(accountModel.getId()).get();
+            accountMapper.updateEntityFromModel(accountModel, existingEntity);
+
+            return accountMapper.toDomain(jpaAccountRepository.save(existingEntity));
+        } else {
+            Account newEntity = accountMapper.toEntity(accountModel);
+            return accountMapper.toDomain(jpaAccountRepository.save(newEntity));
+        }
     }
 
     @Override

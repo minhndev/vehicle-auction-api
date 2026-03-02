@@ -20,8 +20,6 @@ import java.util.Set;
 @Component
 @RequiredArgsConstructor
 public class DatabaseSeeder implements CommandLineRunner {
-
-    // Dùng trực tiếp JPA Repositories
     private final JpaUserRepository jpaUserRepository;
     private final JpaAccountRepository jpaAccountRepository;
     private final JpaRoleRepository jpaRoleRepository;

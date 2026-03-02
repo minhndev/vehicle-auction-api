@@ -7,10 +7,10 @@ import org.mapstruct.ReportingPolicy;
 
 @Mapper(
         componentModel = "spring",
-        uses = {AccountMapper.class}, // Rất quan trọng: Gọi AccountMapper để xử lý biến 'account'
+        uses = {AccountEntityMapper.class}, // Rất quan trọng: Gọi AccountMapper để xử lý biến 'account'
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface UserMapper {
+public interface UserEntityMapper {
     UserModel toDomain(User entity);
     User toEntity(UserModel domain);
 }

@@ -11,7 +11,7 @@ import org.mapstruct.ReportingPolicy;
         uses = {RoleEntityMapper.class},
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface AccountMapper {
+public interface AccountEntityMapper {
 
     AccountModel toDomain(Account entity);
 

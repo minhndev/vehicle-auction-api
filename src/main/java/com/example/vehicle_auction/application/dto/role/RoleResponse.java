@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record RoleResponse(
         @Schema(example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID uuid,
+        UUID id,
         @Schema(example = "MANAGER")
         String name,
         @Schema(example = "Staff responsible for approving vehicle listings")
@@ -27,5 +27,9 @@ public record RoleResponse(
         @Schema(example = "SYSTEM")
         String createdBy,
         @Schema(example = "SYSTEM")
-        String updatedBy) {
+        String updatedBy,
+        @Schema(example = "true")
+        boolean deleted,
+        @Schema(example = "2024-01-01T12:00:00")
+        LocalDateTime deletedAt) {
 }

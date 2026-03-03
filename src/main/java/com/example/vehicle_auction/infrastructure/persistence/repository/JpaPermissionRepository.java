@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface PermissionRepository extends JpaRepository<Permission, UUID> {
+public interface JpaPermissionRepository extends JpaRepository<Permission, UUID> {
+    boolean existsByName(String name);
 }

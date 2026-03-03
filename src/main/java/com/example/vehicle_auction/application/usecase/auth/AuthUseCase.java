@@ -6,9 +6,13 @@ import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.domain.model.AccountModel;
+import com.example.vehicle_auction.domain.model.RoleModel;
 import com.example.vehicle_auction.domain.model.UserModel;
 import com.example.vehicle_auction.domain.repository.AccountRepository;
 import com.example.vehicle_auction.domain.repository.UserRepository;
+import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
+import com.example.vehicle_auction.infrastructure.persistence.mapper.RoleEntityMapper;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
 import com.example.vehicle_auction.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,13 +21,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class AuthUseCase {
-    private final AccountRepository AccountRepository;
-    private final UserRepository UserRepository;
+    private final AccountRepository accountRepository;
+    private final UserRepository userRepository;
+    private final JpaRoleRepository roleRepository;
+    private final RoleEntityMapper roleMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
@@ -36,12 +43,20 @@ public class AuthUseCase {
         if (AccountRepository.existsByEmail(req.email()))
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
 
+        Role userRoleEntity = roleRepository.findByName("USER")
+                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+
+        RoleModel userRoleModel = roleMapper.toDomain(userRoleEntity);
+
         AccountModel account = new AccountModel();
         account.setId(UUID.randomUUID());
         account.setEmail(req.email());
         account.setPassword(passwordEncoder.encode(req.password()));
         account.setActive(true);
         account.setVerified(false);
+        account.setSystem(false);
+
+        account.setRoles(Set.of(userRoleModel));
 
         UserModel user = new UserModel();
         user.setId(UUID.randomUUID());
@@ -55,8 +70,7 @@ public class AuthUseCase {
         user.setAddress(req.address());
         user.setAvatarURL(req.avatarURL());
 
-//        AccountRepository.save(account);
-        UserRepository.save(user);
+        userRepository.save(user);
 
         return generateAuthResponse(account.getEmail());
     }

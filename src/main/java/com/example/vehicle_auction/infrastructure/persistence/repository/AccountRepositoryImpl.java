@@ -2,18 +2,22 @@ package com.example.vehicle_auction.infrastructure.persistence.repository;
 
 import com.example.vehicle_auction.domain.model.AccountModel;
 import com.example.vehicle_auction.domain.repository.AccountRepository;
+import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.AccountEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 public class AccountRepositoryImpl implements AccountRepository {
     private final JpaAccountRepository jpaAccountRepository;
+    private final JpaRoleRepository jpaRoleRepository;
     private final AccountEntityMapper accountEntityMapper;
 
     @Override
@@ -23,15 +27,25 @@ public class AccountRepositoryImpl implements AccountRepository {
 
     @Override
     public AccountModel save(AccountModel accountModel) {
-        if (accountModel.getId() != null && jpaAccountRepository.existsById(accountModel.getId())) {
-            Account existingEntity = jpaAccountRepository.findById(accountModel.getId()).get();
-            accountEntityMapper.updateEntityFromModel(accountModel, existingEntity);
+        Account entity;
 
-            return accountEntityMapper.toDomain(jpaAccountRepository.save(existingEntity));
+        if (accountModel.getId() != null && jpaAccountRepository.existsById(accountModel.getId())) {
+            entity = jpaAccountRepository.findById(accountModel.getId()).get();
+            accountEntityMapper.updateEntityFromModel(accountModel, entity);
         } else {
-            Account newEntity = accountEntityMapper.toEntity(accountModel);
-            return accountEntityMapper.toDomain(jpaAccountRepository.save(newEntity));
+            entity = accountEntityMapper.toEntity(accountModel);
         }
+
+        if (accountModel.getRoles() != null) {
+            Set<Role> managedRoles = accountModel.getRoles().stream()
+                    .map(roleModel -> jpaRoleRepository.getReferenceById(roleModel.getId()))
+                    .collect(Collectors.toSet());
+
+            entity.setRoles(managedRoles);
+        }
+
+        Account savedEntity = jpaAccountRepository.save(entity);
+        return accountEntityMapper.toDomain(savedEntity);
     }
 
     @Override

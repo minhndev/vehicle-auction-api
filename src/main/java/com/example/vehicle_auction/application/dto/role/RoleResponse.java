@@ -10,7 +10,7 @@ import java.util.UUID;
 public record RoleResponse(
 
         @Schema(example = "550e8400-e29b-41d4-a716-446655440000")
-        UUID uuid,
+        UUID id,
 
         @Schema(example = "MANAGER")
         String name,

@@ -40,7 +40,7 @@ public class AuthUseCase {
         if (!req.password().equals(req.confirmPassword()))
             throw new AppException(ErrorCode.CONFIRM_PASSWORD_INVALID);
 
-        if (accountRepository.existsByEmail(req.email()))
+        if (AccountRepository.existsByEmail(req.email()))
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
 
         Role userRoleEntity = roleRepository.findByName("USER")
@@ -77,17 +77,17 @@ public class AuthUseCase {
 
     @Transactional
     public AuthResponse login(LoginRequest req) {
-        AccountModel account = accountRepository.findByEmail(req.email())
+        AccountModel account = AccountRepository.findByEmail(req.email())
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED));
 
         if (!passwordEncoder.matches(req.password(), account.getPassword())) {
             account.recordFailedLogin();
-            accountRepository.save(account);
+            AccountRepository.save(account);
             throw new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED);
         }
 
         account.recordSuccessfulLogin();
-        accountRepository.save(account);
+        AccountRepository.save(account);
 
         return generateAuthResponse(account.getEmail());
     }

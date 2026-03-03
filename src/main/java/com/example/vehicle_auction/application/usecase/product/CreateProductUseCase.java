@@ -3,14 +3,18 @@ package com.example.vehicle_auction.application.usecase.product;
 import com.example.vehicle_auction.application.dto.product.ProductRequest;
 import com.example.vehicle_auction.application.dto.product.ProductResponse;
 import com.example.vehicle_auction.application.mapper.ProductMapper;
+import com.example.vehicle_auction.application.usecase.notification.NotificationUseCase;
+import com.example.vehicle_auction.domain.enums.NotificationType;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Category;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
 import com.example.vehicle_auction.infrastructure.persistence.entity.ProductImage;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaCategoryRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaAccountRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaCategoryRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.JpaProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,8 @@ public class CreateProductUseCase {
 
     private final JpaProductRepository jpaProductRepository;
     private final JpaCategoryRepository jpaCategoryRepository;
+    private final JpaAccountRepository jpaAccountRepository;
+    private final NotificationUseCase notificationUseCase;
     private final ProductMapper productMapper;
 
     public ProductResponse execute(ProductRequest request){
@@ -52,7 +58,7 @@ public class CreateProductUseCase {
             ProductImage image = new ProductImage();
             image.setUrl(imageUrls.get(i));
             image.setSortOrder(i);
-            image.setMain(i == 0);
+            image.setMain(i == 0); // First image is main
 
             product.addImage(image);
         }
@@ -62,6 +68,28 @@ public class CreateProductUseCase {
 
         log.info("Successfully created product {} with ID: {}", savedProduct.getVinNumber(), savedProduct.getId());
 
+        notifyAdmins(savedProduct);
+
         return productMapper.toResponse(savedProduct);
+    }
+
+    private void notifyAdmins(Product product) {
+        try {
+            List<Account> admins = jpaAccountRepository.findBySystemTrue();
+
+            for (Account admin : admins) {
+                notificationUseCase.createNotification(
+                        admin.getId(),
+                        NotificationType.CREATE_PRODUCT,
+                        "New product requires approval.",
+                        "The vehicle with VIN number: " + product.getVinNumber() + " has just been registered and is awaiting your approval.",
+                        product.getId(),
+                        "PRODUCT"
+                );
+            }
+            log.info("Product approval notification has been sent to {} admin.", admins.size());
+        } catch (Exception e) {
+            log.error("Error sending notification to Admin: {}", e.getMessage(), e);
+        }
     }
 }

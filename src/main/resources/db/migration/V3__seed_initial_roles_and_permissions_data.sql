@@ -1,17 +1,30 @@
-INSERT INTO permissions (id, group_name, name, description, is_system, created_at, updated_at)
+INSERT INTO permissions (id, group_name, name, description, is_system)
 VALUES
-(gen_random_uuid(), 'ROLE', 'ROLE_VIEW', 'View all roles', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'ROLE', 'ROLE_VIEW_DETAILS', 'View details about a role', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'ROLE', 'ROLE_CREATE', 'Create new roles', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'ROLE', 'ROLE_UPDATE', 'Update existing roles', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'ROLE', 'ROLE_DELETE', 'Delete existing roles', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'ROLE', 'ROLE_RESTORE', 'Restore deleted roles', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_VIEW', 'View all permissions', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_VIEW_DETAILS', 'View details about a permission', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_CREATE', 'Create new permissions', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_UPDATE', 'Update existing permissions', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_DELETE', 'Delete existing permissions', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_RESTORE', 'Restore deleted permissions', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+(gen_random_uuid(), 'ROLE', 'ROLE_VIEW', 'View all roles', true),
+(gen_random_uuid(), 'ROLE', 'ROLE_VIEW_DETAILS', 'View details about a role', true),
+(gen_random_uuid(), 'ROLE', 'ROLE_CREATE', 'Create new roles', true),
+(gen_random_uuid(), 'ROLE', 'ROLE_UPDATE', 'Update existing roles', true),
+(gen_random_uuid(), 'ROLE', 'ROLE_DELETE', 'Delete existing roles', true),
+(gen_random_uuid(), 'ROLE', 'ROLE_RESTORE', 'Restore deleted roles', true),
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_VIEW', 'View all permissions', true),
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_VIEW_DETAILS', 'View details about a permission', true),
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_CREATE', 'Create new permissions', true),
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_UPDATE', 'Update existing permissions', true),
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_DELETE', 'Delete existing permissions', true),
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_RESTORE', 'Restore deleted permissions', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_VIEW', 'View all categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_VIEW_DETAILS', 'View details about a category', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_CREATE', 'Create new categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_UPDATE', 'Update existing categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_DELETE', 'Delete existing categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_RESTORE', 'Restore deleted categories', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_VIEW', 'View all products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_VIEW_DETAILS', 'View details about a product', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_CREATE', 'Create new products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_UPDATE', 'Update existing products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_DELETE', 'Delete existing products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_RESTORE', 'Restore deleted products', true);
+
 
 INSERT INTO roles (id, name, description, is_system)
 VALUES

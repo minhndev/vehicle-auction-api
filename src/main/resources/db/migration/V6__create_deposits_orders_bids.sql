@@ -1,4 +1,4 @@
-CREATE TABLE deposits (
+CREATE TABLE IF NOT EXISTS deposits (
     id UUID PRIMARY KEY,
     account_id UUID NOT NULL,
     auction_id UUID NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE deposits (
     updated_by VARCHAR(150)
 );
 
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
     id UUID PRIMARY KEY,
     auction_id UUID NOT NULL,
     winner_id UUID NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE orders (
     updated_by VARCHAR(150)
 );
 
-CREATE TABLE bids (
+CREATE TABLE IF NOT EXISTS bids (
     id UUID PRIMARY KEY,
     auction_id UUID NOT NULL,
     bidder_id UUID NOT NULL,

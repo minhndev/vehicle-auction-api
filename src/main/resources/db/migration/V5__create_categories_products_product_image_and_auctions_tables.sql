@@ -1,4 +1,4 @@
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
     id UUID PRIMARY KEY,
     name VARCHAR(150) UNIQUE NOT NULL,
     slug VARCHAR(150) UNIQUE NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE categories (
     updated_by VARCHAR(150)
 );
 
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     id UUID PRIMARY KEY,
     seller_id UUID NOT NULL,
     category_id UUID NOT NULL REFERENCES categories(id),
@@ -40,7 +40,7 @@ CREATE TABLE products (
     updated_by VARCHAR(150)
 );
 
-CREATE TABLE product_images (
+CREATE TABLE IF NOT EXISTS product_images (
     id UUID PRIMARY KEY,
     product_id UUID NOT NULL REFERENCES products(id),
     url TEXT NOT NULL,

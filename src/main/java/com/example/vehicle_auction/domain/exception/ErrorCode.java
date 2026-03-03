@@ -9,6 +9,7 @@ public enum ErrorCode {
     // System errors
     CANNOT_DELETE_SYSTEM_ROLE("SYS_400", "sys.cannot.delete.role"),
     UNCATEGORIZED_EXCEPTION("SYS_500", "sys.uncategorized"),
+    FORBIDDEN_EXCEPTION("SYS_403", "sys.forbidden"),
 
     // Business errors
     CONFIRM_PASSWORD_INVALID("ACCOUNT_400", "confirm_password.invalid"),
@@ -19,6 +20,8 @@ public enum ErrorCode {
     PERMISSION_ALREADY_EXISTS("PERMISSION_400", "permission.already.exists"),
     AUCTION_NOT_FOUND("AUC_404", "auction.not.found"),
     UNAUTHORIZED("AUTH_401", "auth.unauthorized"),
+
+    NOTIFICATION_NOT_FOUND("NOTIFICATION_404", "notification.not.found"),
 
     // Category and Product errors
     CATEGORY_NOT_FOUND("CAT_001", "category.not.found"),

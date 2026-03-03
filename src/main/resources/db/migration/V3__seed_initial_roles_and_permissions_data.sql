@@ -11,7 +11,20 @@ VALUES
 (gen_random_uuid(), 'PERMISSION', 'PERMISSION_CREATE', 'Create new permissions', true),
 (gen_random_uuid(), 'PERMISSION', 'PERMISSION_UPDATE', 'Update existing permissions', true),
 (gen_random_uuid(), 'PERMISSION', 'PERMISSION_DELETE', 'Delete existing permissions', true),
-(gen_random_uuid(), 'PERMISSION', 'PERMISSION_RESTORE', 'Restore deleted permissions', true);
+(gen_random_uuid(), 'PERMISSION', 'PERMISSION_RESTORE', 'Restore deleted permissions', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_VIEW', 'View all categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_VIEW_DETAILS', 'View details about a category', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_CREATE', 'Create new categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_UPDATE', 'Update existing categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_DELETE', 'Delete existing categories', true),
+(gen_random_uuid(), 'CATEGORY', 'CATEGORY_RESTORE', 'Restore deleted categories', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_VIEW', 'View all products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_VIEW_DETAILS', 'View details about a product', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_CREATE', 'Create new products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_UPDATE', 'Update existing products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_DELETE', 'Delete existing products', true),
+(gen_random_uuid(), 'PRODUCT', 'PRODUCT_RESTORE', 'Restore deleted products', true);
+
 
 INSERT INTO roles (id, name, description, is_system)
 VALUES

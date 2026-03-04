@@ -52,7 +52,7 @@ public class CreateProductUseCase {
             ProductImage image = new ProductImage();
             image.setUrl(imageUrls.get(i));
             image.setSortOrder(i);
-            image.setMain(i == 0); // First image is main
+            image.setMain(i == 0);
 
             product.addImage(image);
         }

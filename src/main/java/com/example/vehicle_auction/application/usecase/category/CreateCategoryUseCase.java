@@ -49,7 +49,7 @@ public class CreateCategoryUseCase {
         Category savedCategory = jpaCategoryRepository.save(category);
         log.info("Category created successfully with slug: {}", savedCategory.getSlug());
 
-        return categoryMapper.toCategoryResponse(savedCategory);
+        return categoryMapper.toResponse(savedCategory);
     }
 
     // Utility method to generate slug from category name

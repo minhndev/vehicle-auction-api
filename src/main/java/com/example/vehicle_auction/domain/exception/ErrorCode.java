@@ -12,10 +12,12 @@ public enum ErrorCode {
     DATA_CONFLICT("SYS_002", "sys.data.conflict"),
 
     // Business errors
-    CONFIRM_PASSWORD_INVALID("ACCOUNT_001", "confirm_password.invalid"),
-    EMAIL_ALREADY_EXISTS("ACCOUNT_002", "email.already.exists"),
+    CONFIRM_PASSWORD_INVALID("ACCOUNT_400", "confirm_password.invalid"),
+    EMAIL_ALREADY_EXISTS("ACCOUNT_400", "email.already.exists"),
     ROLE_NOT_FOUND("ROLE_404", "role.not.found"),
     ROLE_ALREADY_EXISTS("ROLE_001", "role.already.exists"),
+    PERMISSION_NOT_FOUND("PERMISSION_404", "permission.not.found"),
+    PERMISSION_ALREADY_EXISTS("PERMISSION_400", "permission.already.exists"),
     AUCTION_NOT_FOUND("AUC_404", "auction.not.found"),
     UNAUTHORIZED("AUTH_401", "auth.unauthorized"),
 

@@ -20,7 +20,6 @@ public class CustomUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (account.getRoles() == null) return Collections.emptyList();
 
-        // Map Role và Permission của bạn thành SimpleGrantedAuthority
         return account.getRoles().stream()
                 .flatMap(role -> role.getPermissions().stream())
                 .map(permission -> new SimpleGrantedAuthority(permission.getName()))

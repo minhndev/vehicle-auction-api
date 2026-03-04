@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "products")
@@ -20,7 +21,8 @@ public class Product extends FullEntity {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-//    private Account seller;
+    @Column(name = "seller_id")
+    private UUID sellerId;
 
     @Column(nullable = false)
     private String name;
@@ -69,6 +71,9 @@ public class Product extends FullEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> images = new ArrayList<>();
+
+    @Version
+    private Integer version;
 
     public void addImage(ProductImage image) {
         images.add(image);

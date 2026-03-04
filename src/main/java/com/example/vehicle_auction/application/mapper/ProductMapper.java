@@ -5,8 +5,7 @@ import com.example.vehicle_auction.application.dto.product.ProductRequest;
 import com.example.vehicle_auction.application.dto.product.ProductResponse;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
 import com.example.vehicle_auction.infrastructure.persistence.entity.ProductImage;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
@@ -21,4 +20,14 @@ public interface ProductMapper {
     ProductResponse toResponse(Product product);
 
     ProductImageResponse toImageResponse(ProductImage image);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "sellerId", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "images", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
+    void updateEntityFromRequest(ProductRequest request, @MappingTarget Product product);
 }

@@ -17,26 +17,25 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class ApproveProductUseCase {
 
     private final JpaProductRepository jpaProductRepository;
     private final ProductMapper productMapper;
 
+    @Transactional
     public ProductResponse execute(UUID productId) {
         log.info("Starting to approve product with ID: {}", productId);
 
         // Find the product by ID
-        var product = jpaProductRepository.findById(productId)
+        var product = jpaProductRepository.findByIdAndDeletedFalse(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // Update the product status to APPROVED
         if (product.getStatus() != ProductStatus.PENDING){
-            log.warn("Cannot approve product with ID {} because it is not in PENDING status", productId);
+            log.warn("Cannot approve product with ID {} because it is not in PENDING status. Current status: {}",
+                    productId, product.getStatus());
             throw new AppException(ErrorCode.PRODUCT_NOT_PENDING);
         }
-
-        //Set the product status to APPROVED
         product.setStatus(ProductStatus.APPROVED);
 
         // Save the updated product

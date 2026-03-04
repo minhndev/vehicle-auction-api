@@ -9,6 +9,7 @@ public enum ErrorCode {
     // System errors
     CANNOT_DELETE_SYSTEM_ROLE("SYS_001", "sys.cannot.delete.role"),
     UNCATEGORIZED_EXCEPTION("SYS_999", "sys.uncategorized"),
+    DATA_CONFLICT("SYS_002", "sys.data.conflict"),
 
     // Business errors
     CONFIRM_PASSWORD_INVALID("ACCOUNT_001", "confirm_password.invalid"),
@@ -24,6 +25,8 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND("PRD_001", "product.not.found"),
     VIN_NUMBER_EXISTS("PRD_002", "product.vin.exists"),
     PRODUCT_NOT_PENDING("PRD_004", "product.not.pending"),
+    PRODUCT_CANNOT_UPDATE("PRD_005", "product.cannot.update"),
+    PRODUCT_CANNOT_DELETE("PRD_006", "product.cannot.delete"),
 
     // Auction and Bid errors
     PRODUCT_NOT_APPROVED("PRD_003", "product.not.approved"),

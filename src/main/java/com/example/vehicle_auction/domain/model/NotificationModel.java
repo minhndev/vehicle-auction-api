@@ -3,15 +3,14 @@ package com.example.vehicle_auction.domain.model;
 import com.example.vehicle_auction.domain.enums.NotificationType;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 public class NotificationModel {
-    private UUID id;
-    private UUID accountId;
+    private String id;
+    private String accountId;
     private NotificationType type;
     private String title;
     private String content;
-    private UUID referenceId;
+    private String referenceId;
     private String referenceType;
     private boolean isRead;
     private LocalDateTime readAt;
@@ -19,12 +18,12 @@ public class NotificationModel {
 
     public NotificationModel() {}
 
-    public NotificationModel(UUID id,
-                             UUID accountId,
+    public NotificationModel(String id,
+                             String accountId,
                              NotificationType type,
                              String title,
                              String content,
-                             UUID referenceId,
+                             String referenceId,
                              String referenceType,
                              boolean isRead,
                              LocalDateTime readAt,
@@ -41,19 +40,19 @@ public class NotificationModel {
         this.createdAt = createdAt;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public UUID getAccountId() {
+    public String getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(UUID accountId) {
+    public void setAccountId(String accountId) {
         this.accountId = accountId;
     }
 
@@ -81,11 +80,11 @@ public class NotificationModel {
         this.content = content;
     }
 
-    public UUID getReferenceId() {
+    public String getReferenceId() {
         return referenceId;
     }
 
-    public void setReferenceId(UUID referenceId) {
+    public void setReferenceId(String referenceId) {
         this.referenceId = referenceId;
     }
 

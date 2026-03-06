@@ -5,6 +5,8 @@ import com.example.vehicle_auction.domain.repository.AccountRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.AccountEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAccountRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

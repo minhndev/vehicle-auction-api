@@ -6,7 +6,7 @@ import com.example.vehicle_auction.application.mapper.PermissionMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Permission;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaPermissionRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaPermissionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

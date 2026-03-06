@@ -3,7 +3,7 @@ package com.example.vehicle_auction.application.usecase.role;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

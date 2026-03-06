@@ -12,7 +12,7 @@ import com.example.vehicle_auction.domain.repository.AccountRepository;
 import com.example.vehicle_auction.domain.repository.UserRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.RoleEntityMapper;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import com.example.vehicle_auction.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

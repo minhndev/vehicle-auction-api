@@ -25,12 +25,12 @@ public class NotificationUseCase {
                                    UUID referenceId,
                                    String referenceType) {
         NotificationModel notification = new NotificationModel();
-        notification.setId(UUID.randomUUID());
-        notification.setAccountId(receiverAccountId);
+        notification.setId(UUID.randomUUID().toString());
+        notification.setAccountId(receiverAccountId.toString());
         notification.setType(type);
         notification.setTitle(title);
         notification.setContent(content);
-        notification.setReferenceId(referenceId);
+        notification.setReferenceId(referenceId.toString());
         notification.setReferenceType(referenceType);
         notification.setRead(false);
 
@@ -38,16 +38,16 @@ public class NotificationUseCase {
     }
 
     public List<NotificationModel> getMyNotifications(UUID myAccountId) {
-        return notificationRepository.findByAccountId(myAccountId);
+        return notificationRepository.findByAccountId(myAccountId.toString());
     }
 
     public long getUnreadCount(UUID myAccountId) {
-        return notificationRepository.countUnreadByAccountId(myAccountId);
+        return notificationRepository.countUnreadByAccountId(myAccountId.toString());
     }
 
     @Transactional
     public void markAsRead(UUID notificationId, UUID myAccountId) {
-        NotificationModel notification = notificationRepository.findById(notificationId)
+        NotificationModel notification = notificationRepository.findById(notificationId.toString())
                 .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.getAccountId().equals(myAccountId)) {

@@ -1,4 +1,4 @@
-package com.example.vehicle_auction.infrastructure.persistence.repository;
+package com.example.vehicle_auction.infrastructure.persistence.repository.jpa;
 
 import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
 import org.springframework.data.jpa.repository.EntityGraph;

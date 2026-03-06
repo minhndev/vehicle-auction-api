@@ -2,46 +2,46 @@ package com.example.vehicle_auction.infrastructure.persistence.repository;
 
 import com.example.vehicle_auction.domain.model.NotificationModel;
 import com.example.vehicle_auction.domain.repository.NotificationRepository;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Notification;
-import com.example.vehicle_auction.infrastructure.persistence.mapper.NotificationEntityMapper;
+import com.example.vehicle_auction.infrastructure.persistence.document.Notification;
+import com.example.vehicle_auction.infrastructure.persistence.mapper.NotificationDocumentMapper;
+import com.example.vehicle_auction.infrastructure.persistence.repository.mongo.MongoNotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 @Repository
 @RequiredArgsConstructor
 public class NotificationRepositoryImpl implements NotificationRepository {
-    private final JpaNotificationRepository jpaRepository;
-    private final NotificationEntityMapper mapper;
+    private final MongoNotificationRepository mongoNotificationRepository;
+    private final NotificationDocumentMapper mapper;
 
     @Override
     public NotificationModel save(NotificationModel model) {
         Notification entity;
-        if (model.getId() != null && jpaRepository.existsById(model.getId())) {
-            entity = jpaRepository.findById(model.getId()).get();
+        if (model.getId() != null && mongoNotificationRepository.existsById(model.getId())) {
+            entity = mongoNotificationRepository.findById(model.getId()).get();
             mapper.updateEntityFromModel(model, entity);
         } else {
-            entity = mapper.toEntity(model);
+            entity = mapper.toDocument(model);
         }
-        return mapper.toDomain(jpaRepository.save(entity));
+        return mapper.toDomain(mongoNotificationRepository.save(entity));
     }
 
     @Override
-    public Optional<NotificationModel> findById(UUID id) {
-        return jpaRepository.findById(id).map(mapper::toDomain);
+    public Optional<NotificationModel> findById(String id) {
+        return mongoNotificationRepository.findById(id).map(mapper::toDomain);
     }
 
     @Override
-    public List<NotificationModel> findByAccountId(UUID accountId) {
-        return jpaRepository.findByAccountIdOrderByCreatedAtDesc(accountId).stream()
+    public List<NotificationModel> findByAccountId(String accountId) {
+        return mongoNotificationRepository.findByAccountIdOrderByCreatedAtDesc(accountId).stream()
                 .map(mapper::toDomain).toList();
     }
 
     @Override
-    public long countUnreadByAccountId(UUID accountId) {
-        return jpaRepository.countByAccountIdAndIsReadFalse(accountId);
+    public long countUnreadByAccountId(String accountId) {
+        return mongoNotificationRepository.countByAccountIdAndIsReadFalse(accountId);
     }
 }

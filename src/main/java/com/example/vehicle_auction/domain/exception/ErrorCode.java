@@ -40,7 +40,12 @@ public enum ErrorCode {
     DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid"),
     BID_AMOUNT_TOO_LOW("BID_002", "bid.amount.too.low"),
     ACCOUNT_UNAUTHORIZED("ACCOUNT_401", "account.unauthorized"),
-    REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized");
+    REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized"),
+
+    //Deposit
+    DEPOSIT_NOT_FOUND("DEP_001", "deposit.not.found"),
+    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit")
+    ;
 
     private final String code;
     private final String messageKey;

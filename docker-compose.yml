@@ -32,6 +32,8 @@ services:
     restart: always
     ports:
       - "${REDIS_PORT}:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - auction-network
 
@@ -61,3 +63,4 @@ networks:
 volumes:
   postgres_data:
   mongo_data:
+  redis_data:

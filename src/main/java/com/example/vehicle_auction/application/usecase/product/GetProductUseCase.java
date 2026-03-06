@@ -5,7 +5,7 @@ import com.example.vehicle_auction.application.mapper.ProductMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaProductRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

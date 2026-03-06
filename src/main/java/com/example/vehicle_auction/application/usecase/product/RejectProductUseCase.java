@@ -17,7 +17,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ApproveProductUseCase {
+public class RejectProductUseCase {
 
     private final JpaProductRepository jpaProductRepository;
     private final ProductMapper productMapper;
@@ -27,20 +27,20 @@ public class ApproveProductUseCase {
         log.info("Starting to approve product with ID: {}", productId);
 
         // Find the product by ID
-        var product = jpaProductRepository.findByIdAndDeletedFalse(productId)
+        Product product = jpaProductRepository.findByIdAndDeletedFalse(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // Update the product status to APPROVED
         if (product.getStatus() != ProductStatus.PENDING){
-            log.warn("Cannot approve product with ID {} because it is not in PENDING status. Current status: {}",
+            log.warn("Cannot reject product with ID {} because it is not in PENDING status. Current status: {}",
                     productId, product.getStatus());
             throw new AppException(ErrorCode.PRODUCT_NOT_PENDING);
         }
-        product.setStatus(ProductStatus.APPROVED);
+        product.setStatus(ProductStatus.REJECTED);
 
         // Save the updated product
         Product updatedProduct = jpaProductRepository.save(product);
-        log.info("Product with ID: {} has been APPROVED", updatedProduct.getId());
+        log.info("Product with ID: {} has been REJECTED", updatedProduct.getId());
 
         return productMapper.toResponse(updatedProduct);
     }

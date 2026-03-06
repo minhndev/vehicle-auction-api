@@ -4,7 +4,7 @@ import com.example.vehicle_auction.application.dto.category.CategoryResponse;
 import com.example.vehicle_auction.application.mapper.CategoryMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaCategoryRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaCategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

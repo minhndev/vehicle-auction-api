@@ -19,8 +19,17 @@ public class AuctionScheduler {
     public void processAuctionLifecycle() {
         log.debug("Running Auction Lifecycle Scheduler...");
 
-        openScheduledAuctionsUseCase.execute();
+        try {
+            openScheduledAuctionsUseCase.execute();
+        }catch (Exception e){
+            log.error("Error while opening scheduled auctions: {}", e.getMessage());
+        }
 
-        closeEndedAuctionsUseCase.execute();
+        try {
+            closeEndedAuctionsUseCase.execute();
+        }catch (Exception e){
+            log.error("Error while closing ended auctions: {}", e.getMessage());
+        }
     }
+
 }

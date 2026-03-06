@@ -9,9 +9,9 @@ import java.util.UUID;
 public interface NotificationRepository {
     NotificationModel save(NotificationModel model);
 
-    Optional<NotificationModel> findById(UUID id);
+    Optional<NotificationModel> findById(String id);
 
-    List<NotificationModel> findByAccountId(UUID accountId);
+    List<NotificationModel> findByAccountId(String accountId);
 
-    long countUnreadByAccountId(UUID accountId);
+    long countUnreadByAccountId(String accountId);
 }

@@ -2,6 +2,7 @@ package com.example.vehicle_auction.infrastructure.persistence.repository;
 
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.repository.DepositRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaDepositRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

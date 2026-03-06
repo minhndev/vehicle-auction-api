@@ -4,6 +4,7 @@ import com.example.vehicle_auction.domain.model.AuctionModel;
 import com.example.vehicle_auction.domain.repository.AuctionRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Auction;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.AuctionEntityMapper;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAuctionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 

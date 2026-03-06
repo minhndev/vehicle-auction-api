@@ -1,4 +1,4 @@
-package com.example.vehicle_auction.infrastructure.persistence.repository;
+package com.example.vehicle_auction.infrastructure.persistence.repository.jpa;
 
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Deposit;

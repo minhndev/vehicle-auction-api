@@ -13,4 +13,6 @@ public interface AccountRepository {
     Optional<AccountModel> findByEmail(String email);
 
     Optional<AccountModel> findById(UUID id);
+
+    Optional<AccountModel> findByVerificationToken(String token);
 }

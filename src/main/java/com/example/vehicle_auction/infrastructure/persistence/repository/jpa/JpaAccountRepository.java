@@ -15,4 +15,6 @@ public interface JpaAccountRepository extends JpaRepository<Account, UUID> {
     boolean existsByEmail(String email);
 
     List<Account> findBySystemTrue();
+
+    Optional<Account> findByVerificationToken(String verificationToken);
 }

@@ -22,6 +22,9 @@ public class Account extends FullEntity {
     @Column(name = "is_verified", nullable = false)
     private boolean verified = false;
 
+    @Column(name = "verification_token")
+    private String verificationToken;
+
     @Column(name = "failed_attempt_count", nullable = false)
     private int failedAttemptCount = 0;
 

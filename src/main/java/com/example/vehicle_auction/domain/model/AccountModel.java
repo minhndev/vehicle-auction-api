@@ -13,6 +13,7 @@ public class AccountModel {
     private String email;
     private String password;
     private boolean verified;
+    private String verificationToken;
     private int failedAttemptCount;
     private LocalDateTime lastLoginAt;
     private boolean system;
@@ -29,11 +30,27 @@ public class AccountModel {
         this.roles = new HashSet<>();
     }
 
-    public AccountModel(UUID id, String email, String password, boolean verified, int failedAttemptCount, LocalDateTime lastLoginAt, boolean system, boolean active, LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, String updatedBy, boolean deleted, LocalDateTime deletedAt, Set<RoleModel> roles) {
+    public AccountModel(UUID id,
+                        String email,
+                        String password,
+                        boolean verified,
+                        String verificationToken,
+                        int failedAttemptCount,
+                        LocalDateTime lastLoginAt,
+                        boolean system,
+                        boolean active,
+                        LocalDateTime createdAt,
+                        LocalDateTime updatedAt,
+                        String createdBy,
+                        String updatedBy,
+                        boolean deleted,
+                        LocalDateTime deletedAt,
+                        Set<RoleModel> roles) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.verified = verified;
+        this.verificationToken = verificationToken;
         this.failedAttemptCount = failedAttemptCount;
         this.lastLoginAt = lastLoginAt;
         this.system = system;
@@ -165,6 +182,14 @@ public class AccountModel {
 
     public void setRoles(Set<RoleModel> roles) {
         this.roles = roles;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
     }
 
     public void recordFailedLogin() {

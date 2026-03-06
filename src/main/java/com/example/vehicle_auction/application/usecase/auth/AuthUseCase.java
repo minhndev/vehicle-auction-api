@@ -3,6 +3,7 @@ package com.example.vehicle_auction.application.usecase.auth;
 import com.example.vehicle_auction.application.dto.auth.AuthResponse;
 import com.example.vehicle_auction.application.dto.auth.LoginRequest;
 import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.usecase.mail.SendRegistrationEmailUseCase;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.domain.model.AccountModel;
@@ -34,6 +35,7 @@ public class AuthUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final SendRegistrationEmailUseCase sendRegistrationEmailUseCase;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -54,6 +56,9 @@ public class AuthUseCase {
         account.setPassword(passwordEncoder.encode(req.password()));
         account.setActive(true);
         account.setVerified(false);
+
+        String token = UUID.randomUUID().toString();
+        account.setVerificationToken(token);
         account.setSystem(false);
 
         account.setRoles(Set.of(userRoleModel));
@@ -71,6 +76,18 @@ public class AuthUseCase {
         user.setAvatarURL(req.avatarURL());
 
         userRepository.save(user);
+
+        String fullName = req.firstName() + " " + req.lastName();
+        String subject = "Verify your Vehicle Auction Account";
+
+        String verificationLink = "http://localhost:8080/api/v1/auth/verify?token=" + token;
+
+        String body = "Hello " + fullName + ",\n\n" +
+                "Welcome to Vehicle Auction Please click the link below to verify your account:\n" +
+                verificationLink + "\n\n" +
+                "Happy Bidding!";
+
+        sendRegistrationEmailUseCase.execute(req.email(), fullName, subject, body);
 
         return generateAuthResponse(account.getEmail());
     }
@@ -101,6 +118,21 @@ public class AuthUseCase {
         }
 
         throw new AppException(ErrorCode.REFRESH_UNAUTHORIZED);
+    }
+
+    @Transactional
+    public void verifyAccount(String token) {
+        AccountModel account = accountRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_INVALID_VERIFICATION_TOKEN));
+
+        if (account.isVerified()) {
+            throw new AppException(ErrorCode.ACCOUNT_ALREADY_VERIFIED);
+        }
+
+        account.setVerified(true);
+        account.setVerificationToken(null);
+
+        accountRepository.save(account);
     }
 
     private AuthResponse generateAuthResponse(String email) {

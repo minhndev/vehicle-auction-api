@@ -26,7 +26,7 @@ public class Notification {
     private String content;
 
     @Field(name = "reference_id")
-    private UUID referenceId;
+    private String referenceId;
 
     @Field(name = "reference_type")
     private String referenceType;
@@ -39,7 +39,7 @@ public class Notification {
 
     @Indexed
     @Field(name = "account_id")
-    private UUID accountId;
+    private String accountId;
 
     @CreatedDate
     @Field(name = "created_at")

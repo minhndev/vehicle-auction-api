@@ -7,8 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ErrorCode {
     // System errors
-    CANNOT_DELETE_SYSTEM_ROLE("SYS_001", "sys.cannot.delete.role"),
-    UNCATEGORIZED_EXCEPTION("SYS_999", "sys.uncategorized"),
+    CANNOT_DELETE_SYSTEM_ROLE("SYS_400", "sys.cannot.delete.role"),
+    UNCATEGORIZED_EXCEPTION("SYS_500", "sys.uncategorized"),
+    FORBIDDEN_EXCEPTION("SYS_403", "sys.forbidden"),
     DATA_CONFLICT("SYS_002", "sys.data.conflict"),
 
     // Business errors

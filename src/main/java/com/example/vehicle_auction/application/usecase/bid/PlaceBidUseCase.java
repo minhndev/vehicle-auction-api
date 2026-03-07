@@ -36,10 +36,10 @@ public class PlaceBidUseCase {
         LocalDateTime now = LocalDateTime.now();
 
         // Kiểm tra đã nộp cọc chưa
-        boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
-        if (!hasDeposited) {
-            throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
-        }
+//        boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
+//        if (!hasDeposited) {
+//            throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
+//        }
 
         // Lấy AuctionModel lên và khóa row lại (Pessimistic Lock)
         AuctionModel auctionModel = auctionRepository.findByIdWithLock(auctionId)

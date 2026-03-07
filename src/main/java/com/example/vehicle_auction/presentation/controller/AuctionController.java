@@ -29,7 +29,7 @@ public class AuctionController {
     @ApiResponse(responseCode = "400", description = "Invalid time, overlapping auctions, or invalid product status")
     @ApiResponse(responseCode = "404", description = "Product not found")
     @PostMapping
-    @PreAuthorize("hasAuthority('AUCTION_CREATE')")
+//    @PreAuthorize("hasAuthority('AUCTION_CREATE')")
     public ResponseEntity<AuctionResponse> createAuction(@RequestBody @Valid AuctionRequest request) {
         return ResponseEntity.ok(createAuctionUseCase.execute(request));
     }

@@ -20,7 +20,7 @@ public class GetBidHistoryUseCase {
     private final BidMapper bidMapper;
 
     @Cacheable(value = "top_bids", key = "#auctionId")
-    public List<BidResponse> getTop5Bids(UUID auctionId) {
+    public List<BidResponse> getTop10Bids(UUID auctionId) {
 
         return bidRepository.findTop10ByAuctionIdOrderByAmountDesc(auctionId)
                 .stream()

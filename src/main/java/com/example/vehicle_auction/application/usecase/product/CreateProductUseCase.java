@@ -21,11 +21,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class CreateProductUseCase {
 
     private final JpaProductRepository jpaProductRepository;
@@ -34,7 +34,8 @@ public class CreateProductUseCase {
     private final NotificationUseCase notificationUseCase;
     private final ProductMapper productMapper;
 
-    public ProductResponse execute(ProductRequest request){
+    @Transactional
+    public ProductResponse execute(ProductRequest request, UUID sellerId){
         log.info("Starting to create new product with VIN: {}", request.vinNumber());
 
         // Validate category existence
@@ -49,6 +50,7 @@ public class CreateProductUseCase {
 
         // Map request to entity
         Product product = productMapper.toEntity(request);
+        product.setSellerId(sellerId);
         product.setCategory(category);
         product.setStatus(ProductStatus.PENDING);
 

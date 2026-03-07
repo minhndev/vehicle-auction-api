@@ -30,7 +30,7 @@ public class Bid extends BaseIdEntity {
     private BidStatus status = BidStatus.VALID;
 
     @Column(name = "bid_time", nullable = false)
-    private LocalDateTime bidTime;
+    private LocalDateTime bidTime = LocalDateTime.now();
 
     @Column(name = "ip_address", length = 45)
     private String ipAddress;

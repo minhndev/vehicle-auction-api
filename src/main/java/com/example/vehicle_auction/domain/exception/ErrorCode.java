@@ -21,6 +21,11 @@ public enum ErrorCode {
     AUCTION_NOT_FOUND("AUC_404", "auction.not.found"),
     UNAUTHORIZED("AUTH_401", "auth.unauthorized"),
 
+    NOTIFICATION_NOT_FOUND("NOTIFICATION_404", "notification.not.found"),
+
+    ACCOUNT_INVALID_VERIFICATION_TOKEN("ACCOUNT_400", "account.invalid.verification_token"),
+    ACCOUNT_ALREADY_VERIFIED("ACCOUNT_400", "account.already.verified"),
+
     // Category and Product errors
     CATEGORY_NOT_FOUND("CAT_001", "category.not.found"),
     CATEGORY_ALREADY_EXISTS("CAT_003", "category.already.exists"),
@@ -40,7 +45,12 @@ public enum ErrorCode {
     DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid"),
     BID_AMOUNT_TOO_LOW("BID_002", "bid.amount.too.low"),
     ACCOUNT_UNAUTHORIZED("ACCOUNT_401", "account.unauthorized"),
-    REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized");
+    REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized"),
+
+    //Deposit
+    DEPOSIT_NOT_FOUND("DEP_001", "deposit.not.found"),
+    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit")
+    ;
 
     private final String code;
     private final String messageKey;

@@ -12,6 +12,7 @@ import com.example.vehicle_auction.domain.repository.BidRepository;
 
 import com.example.vehicle_auction.domain.repository.DepositRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,16 +29,17 @@ public class PlaceBidUseCase {
     // Sử dụng ApplicationEventPublisher để phát sự kiện khi có bid mới
     private final ApplicationEventPublisher eventPublisher;
 
+    @CacheEvict(value = "top_bids", key = "#auctionId")
     @Transactional
     public BidResponse execute(UUID auctionId, BidRequest request, UUID bidderId) {
 
         LocalDateTime now = LocalDateTime.now();
 
         // Kiểm tra đã nộp cọc chưa
-        boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
-        if (!hasDeposited) {
-            throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
-        }
+//        boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
+//        if (!hasDeposited) {
+//            throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
+//        }
 
         // Lấy AuctionModel lên và khóa row lại (Pessimistic Lock)
         AuctionModel auctionModel = auctionRepository.findByIdWithLock(auctionId)

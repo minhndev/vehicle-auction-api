@@ -5,7 +5,7 @@ import com.example.vehicle_auction.application.mapper.RoleMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

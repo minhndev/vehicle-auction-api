@@ -34,6 +34,6 @@ public record AuctionRequest(
         BigDecimal bidIncrement,
 
         @NotNull(message = "{auction.deposit.required}")
-        @Positive(message = "{auction.price.positive}")
+//        @Positive(message = "{auction.price.positive}")
         BigDecimal depositAmount
 ) {}

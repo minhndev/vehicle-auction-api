@@ -3,6 +3,7 @@ package com.example.vehicle_auction.application.usecase.auth;
 import com.example.vehicle_auction.application.dto.auth.AuthResponse;
 import com.example.vehicle_auction.application.dto.auth.LoginRequest;
 import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.usecase.mail.SendRegistrationEmailUseCase;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.domain.model.AccountModel;
@@ -12,7 +13,7 @@ import com.example.vehicle_auction.domain.repository.AccountRepository;
 import com.example.vehicle_auction.domain.repository.UserRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.RoleEntityMapper;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaRoleRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import com.example.vehicle_auction.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,13 +35,14 @@ public class AuthUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final SendRegistrationEmailUseCase sendRegistrationEmailUseCase;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
         if (!req.password().equals(req.confirmPassword()))
             throw new AppException(ErrorCode.CONFIRM_PASSWORD_INVALID);
 
-        if (AccountRepository.existsByEmail(req.email()))
+        if (accountRepository.existsByEmail(req.email()))
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
 
         Role userRoleEntity = roleRepository.findByName("USER")
@@ -54,6 +56,9 @@ public class AuthUseCase {
         account.setPassword(passwordEncoder.encode(req.password()));
         account.setActive(true);
         account.setVerified(false);
+
+        String token = UUID.randomUUID().toString();
+        account.setVerificationToken(token);
         account.setSystem(false);
 
         account.setRoles(Set.of(userRoleModel));
@@ -72,22 +77,34 @@ public class AuthUseCase {
 
         userRepository.save(user);
 
+        String fullName = req.firstName() + " " + req.lastName();
+        String subject = "Verify your Vehicle Auction Account";
+
+        String verificationLink = "http://localhost:8080/api/v1/auth/verify?token=" + token;
+
+        String body = "Hello " + fullName + ",\n\n" +
+                "Welcome to Vehicle Auction Please click the link below to verify your account:\n" +
+                verificationLink + "\n\n" +
+                "Happy Bidding!";
+
+        sendRegistrationEmailUseCase.execute(req.email(), fullName, subject, body);
+
         return generateAuthResponse(account.getEmail());
     }
 
     @Transactional
     public AuthResponse login(LoginRequest req) {
-        AccountModel account = AccountRepository.findByEmail(req.email())
+        AccountModel account = accountRepository.findByEmail(req.email())
                 .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED));
 
         if (!passwordEncoder.matches(req.password(), account.getPassword())) {
             account.recordFailedLogin();
-            AccountRepository.save(account);
+            accountRepository.save(account);
             throw new AppException(ErrorCode.ACCOUNT_UNAUTHORIZED);
         }
 
         account.recordSuccessfulLogin();
-        AccountRepository.save(account);
+        accountRepository.save(account);
 
         return generateAuthResponse(account.getEmail());
     }
@@ -101,6 +118,21 @@ public class AuthUseCase {
         }
 
         throw new AppException(ErrorCode.REFRESH_UNAUTHORIZED);
+    }
+
+    @Transactional
+    public void verifyAccount(String token) {
+        AccountModel account = accountRepository.findByVerificationToken(token)
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_INVALID_VERIFICATION_TOKEN));
+
+        if (account.isVerified()) {
+            throw new AppException(ErrorCode.ACCOUNT_ALREADY_VERIFIED);
+        }
+
+        account.setVerified(true);
+        account.setVerificationToken(null);
+
+        accountRepository.save(account);
     }
 
     private AuthResponse generateAuthResponse(String email) {

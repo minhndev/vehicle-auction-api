@@ -2,7 +2,7 @@ package com.example.vehicle_auction.application.usecase.auction;
 
 import com.example.vehicle_auction.domain.enums.AuctionStatus;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Auction;
-import com.example.vehicle_auction.infrastructure.persistence.repository.JpaAuctionRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAuctionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

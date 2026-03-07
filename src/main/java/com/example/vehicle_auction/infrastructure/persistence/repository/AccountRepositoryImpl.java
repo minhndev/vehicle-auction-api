@@ -5,6 +5,8 @@ import com.example.vehicle_auction.domain.repository.AccountRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.AccountEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAccountRepository;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -57,6 +59,12 @@ public class AccountRepositoryImpl implements AccountRepository {
     @Override
     public Optional<AccountModel> findById(UUID id) {
         return jpaAccountRepository.findById(id)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<AccountModel> findByVerificationToken(String token) {
+        return jpaAccountRepository.findByVerificationToken(token)
                 .map(accountEntityMapper::toDomain);
     }
 }

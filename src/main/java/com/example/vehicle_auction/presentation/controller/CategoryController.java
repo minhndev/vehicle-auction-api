@@ -51,7 +51,7 @@ public class CategoryController {
 
     @Operation(summary = "Update category details")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
+//    @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable UUID id,
             @RequestBody @Valid CategoryRequest request) {

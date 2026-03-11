@@ -11,7 +11,13 @@ public interface AuctionEntityMapper {
     @Mapping(source = "product.id", target = "productId")
     AuctionModel toDomain(Auction entity);
 
+    @Mapping(target = "product", ignore = true)
     Auction toEntity(AuctionModel domain);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "product", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdBy", ignore = true)
     void updateEntityFromModel(AuctionModel model, @MappingTarget Auction entity);
 }

@@ -10,12 +10,11 @@ import com.example.vehicle_auction.domain.model.AccountModel;
 import com.example.vehicle_auction.domain.model.RoleModel;
 import com.example.vehicle_auction.domain.model.UserModel;
 import com.example.vehicle_auction.domain.repository.AccountRepository;
+import com.example.vehicle_auction.domain.repository.RoleRepository;
 import com.example.vehicle_auction.domain.repository.UserRepository;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
-import com.example.vehicle_auction.infrastructure.persistence.mapper.RoleEntityMapper;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import com.example.vehicle_auction.infrastructure.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,12 +29,14 @@ import java.util.UUID;
 public class AuthUseCase {
     private final AccountRepository accountRepository;
     private final UserRepository userRepository;
-    private final JpaRoleRepository roleRepository;
-    private final RoleEntityMapper roleMapper;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final SendRegistrationEmailUseCase sendRegistrationEmailUseCase;
+
+    @Value("${app.api.base-url}")
+    private String apiBaseUrl;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -45,10 +46,8 @@ public class AuthUseCase {
         if (accountRepository.existsByEmail(req.email()))
             throw new AppException(ErrorCode.EMAIL_ALREADY_EXISTS);
 
-        Role userRoleEntity = roleRepository.findByName("USER")
+        RoleModel userRoleModel = roleRepository.findByName("USER")
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
-
-        RoleModel userRoleModel = roleMapper.toDomain(userRoleEntity);
 
         AccountModel account = new AccountModel();
         account.setId(UUID.randomUUID());
@@ -59,6 +58,7 @@ public class AuthUseCase {
 
         String token = UUID.randomUUID().toString();
         account.setVerificationToken(token);
+
         account.setSystem(false);
 
         account.setRoles(Set.of(userRoleModel));
@@ -80,7 +80,7 @@ public class AuthUseCase {
         String fullName = req.firstName() + " " + req.lastName();
         String subject = "Verify your Vehicle Auction Account";
 
-        String verificationLink = "http://localhost:8080/api/v1/auth/verify?token=" + token;
+        String verificationLink = apiBaseUrl + "/api/v1/auth/verify?token=" + token;
 
         String body = "Hello " + fullName + ",\n\n" +
                 "Welcome to Vehicle Auction Please click the link below to verify your account:\n" +

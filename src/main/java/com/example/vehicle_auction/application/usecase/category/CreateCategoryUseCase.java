@@ -5,8 +5,8 @@ import com.example.vehicle_auction.application.dto.category.CategoryResponse;
 import com.example.vehicle_auction.application.mapper.CategoryMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Category;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaCategoryRepository;
+import com.example.vehicle_auction.domain.model.CategoryModel;
+import com.example.vehicle_auction.domain.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Transactional
 public class CreateCategoryUseCase {
-    private final JpaCategoryRepository jpaCategoryRepository;
+    private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
@@ -32,24 +32,24 @@ public class CreateCategoryUseCase {
         log.info("Creating new category with name: {}", request.name());
 
         // Check if category with the same name already exists
-        if  (jpaCategoryRepository.existsByName(request.name())){
+        if  (categoryRepository.existsByName(request.name())){
             throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS);
         }
 
         // Generate slug from category name
         String slug = generateSlug(request.name());
 
-        if  (jpaCategoryRepository.existsBySlug(slug)){
+        if  (categoryRepository.existsBySlug(slug)){
             slug = slug + "-" + System.currentTimeMillis();
         }
 
-        Category category = categoryMapper.toEntity(request);
+        CategoryModel category = categoryMapper.toEntity(request);
         category.setSlug(slug);
 
-        Category savedCategory = jpaCategoryRepository.save(category);
+        CategoryModel savedCategory = categoryRepository.save(category);
         log.info("Category created successfully with slug: {}", savedCategory.getSlug());
 
-        return categoryMapper.toCategoryResponse(savedCategory);
+        return categoryMapper.toResponse(savedCategory);
     }
 
     // Utility method to generate slug from category name

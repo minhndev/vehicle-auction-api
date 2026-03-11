@@ -10,6 +10,7 @@ public enum ErrorCode {
     CANNOT_DELETE_SYSTEM_ROLE("SYS_400", "sys.cannot.delete.role"),
     UNCATEGORIZED_EXCEPTION("SYS_500", "sys.uncategorized"),
     FORBIDDEN_EXCEPTION("SYS_403", "sys.forbidden"),
+    DATA_CONFLICT("SYS_002", "sys.data.conflict"),
 
     // Business errors
     CONFIRM_PASSWORD_INVALID("ACCOUNT_400", "confirm_password.invalid"),
@@ -34,18 +35,25 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND("PRD_001", "product.not.found"),
     VIN_NUMBER_EXISTS("PRD_002", "product.vin.exists"),
     PRODUCT_NOT_PENDING("PRD_004", "product.not.pending"),
+    PRODUCT_CANNOT_UPDATE("PRD_005", "product.cannot.update"),
+    PRODUCT_CANNOT_DELETE("PRD_006", "product.cannot.delete"),
 
     // Auction and Bid errors
     PRODUCT_NOT_APPROVED("PRD_003", "product.not.approved"),
     INVALID_AUCTION_TIME("AUC_002", "auction.time.invalid"),
     AUCTION_OVERLAPS("AUC_003", "auction.overlaps"),
     AUCTION_NOT_ACTIVE("AUC_004", "auction.not.active"),
+    AUCTION_CANNOT_CANCEL("AUC_005", "auction.cannot.cancel"),
 
     DEPOSIT_REQUIRED("BID_001", "bid.deposit.required"),
     DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid"),
     BID_AMOUNT_TOO_LOW("BID_002", "bid.amount.too.low"),
     ACCOUNT_UNAUTHORIZED("ACCOUNT_401", "account.unauthorized"),
-    REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized");
+    REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized"),
+
+    //Deposit
+    DEPOSIT_NOT_FOUND("DEP_001", "deposit.not.found"),
+    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit");
 
     private final String code;
     private final String messageKey;

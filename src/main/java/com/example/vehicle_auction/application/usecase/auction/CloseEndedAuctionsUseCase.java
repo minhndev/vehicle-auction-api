@@ -3,14 +3,19 @@ package com.example.vehicle_auction.application.usecase.auction;
 import com.example.vehicle_auction.domain.enums.AuctionStatus;
 import com.example.vehicle_auction.domain.enums.OrderStatus;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Auction;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Order;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAuctionRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaOrderRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
+import com.example.vehicle_auction.domain.exception.AppException;
+import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.domain.model.AuctionModel;
+import com.example.vehicle_auction.domain.model.OrderModel;
+import com.example.vehicle_auction.domain.model.ProductModel;
+import com.example.vehicle_auction.domain.repository.AuctionRepository;
+import com.example.vehicle_auction.domain.repository.OrderRepository;
+import com.example.vehicle_auction.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,44 +27,55 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CloseEndedAuctionsUseCase {
 
-    private final JpaAuctionRepository auctionRepository;
-    private final JpaOrderRepository orderRepository;
-    private final JpaProductRepository productRepository;
+    private final AuctionRepository auctionRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public void execute() {
         LocalDateTime now = LocalDateTime.now();
-        List<Auction> auctionsToClose = auctionRepository.findAuctionsToClose(AuctionStatus.ACTIVE, now);
+        int BATCH_SIZE = 100;
+        Pageable pageable = PageRequest.of(0, BATCH_SIZE);
+        Page<AuctionModel> page;
 
-        for (Auction auction : auctionsToClose) {
-            Product product = auction.getProduct();
+        do {
+            page = auctionRepository.findAuctionsToClose(AuctionStatus.ACTIVE, now, pageable);
+            List<AuctionModel> auctions = page.getContent();
 
-            if (auction.getWinnerId() != null) {
-                auction.setStatus(AuctionStatus.COMPLETED);
-                product.setStatus(ProductStatus.SOLD);
-
-                Order order = Order.builder()
-                        .auctionId(auction.getId())
-                        .winnerId(auction.getWinnerId())
-                        .totalAmount(auction.getCurrentPrice())
-                        .remainingAmount(auction.getCurrentPrice().subtract(auction.getDepositAmount()))
-                        .status(OrderStatus.PENDING_PAYMENT)
-                        .paymentDeadDate(now.plusDays(3))
-                        .build();
-                orderRepository.save(order);
-                log.info("Auction {} COMPLETED. Order created for Winner {}", auction.getId(), auction.getWinnerId());
-
-            } else {
-                auction.setStatus(AuctionStatus.FAILED);
-                product.setStatus(ProductStatus.APPROVED);
-                log.info("Auction {} FAILED due to no bids.", auction.getId());
+            if (auctions.isEmpty()) {
+                break;
             }
 
-            productRepository.save(product);
-        }
+            for (AuctionModel auction : auctions) {
+                ProductModel product = productRepository.findById(auction.getProductId())
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (!auctionsToClose.isEmpty()) {
-            auctionRepository.saveAll(auctionsToClose);
-        }
+                if (auction.getWinnerId() != null) {
+                    auction.setStatus(AuctionStatus.COMPLETED);
+                    product.setStatus(ProductStatus.SOLD);
+
+                    OrderModel order = OrderModel.builder()
+                            .auctionId(auction.getId())
+                            .winnerId(auction.getWinnerId())
+                            .totalAmount(auction.getCurrentPrice())
+                            .remainingAmount(auction.getCurrentPrice().subtract(auction.getDepositAmount()))
+                            .status(OrderStatus.PENDING_PAYMENT)
+                            .paymentDeadDate(now.plusDays(3))
+                            .build();
+                    orderRepository.save(order);
+                    log.info("Auction {} COMPLETED. Order created for Winner {}", auction.getId(), auction.getWinnerId());
+
+                } else {
+                    auction.setStatus(AuctionStatus.FAILED);
+                    product.setStatus(ProductStatus.APPROVED);
+                    log.info("Auction {} FAILED due to no bids.", auction.getId());
+                }
+
+            }
+            auctionRepository.saveAll(auctions);
+
+        } while (page.hasNext());
+
+        log.info("Finished processing ended auctions.");
     }
 }

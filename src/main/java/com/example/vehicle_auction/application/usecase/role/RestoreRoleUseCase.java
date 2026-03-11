@@ -2,6 +2,8 @@ package com.example.vehicle_auction.application.usecase.role;
 
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.domain.model.RoleModel;
+import com.example.vehicle_auction.domain.repository.RoleRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +16,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional
 public class RestoreRoleUseCase {
-    private final JpaRoleRepository jpaRoleRepository;
+    private final RoleRepository roleRepository;
 
     public void execute(UUID id) {
-        Role role = jpaRoleRepository.findById(id)
+        RoleModel roleModel = roleRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
 
-        role.restore();
-        jpaRoleRepository.save(role);
+        roleModel.restore();
+        roleRepository.save(roleModel);
     }
 }

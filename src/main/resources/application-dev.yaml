@@ -40,6 +40,12 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  aws:
+    s3:
+      bucket-name: vehicle-auction-bucket
+      region: ap-southeast-1
+      access-key: ${AWS_ACCESS_KEY}
+      secret-key: ${AWS_SECRET_KEY}
 
 app:
   admin:

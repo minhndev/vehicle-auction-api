@@ -51,7 +51,10 @@ public enum ErrorCode {
 
     //Deposit
     DEPOSIT_NOT_FOUND("DEP_001", "deposit.not.found"),
-    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit");
+    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit"),
+
+    //File
+    FILE_UPLOAD_FAILED("FILE_001", "file.upload.failed");
 
     private final String code;
     private final String messageKey;

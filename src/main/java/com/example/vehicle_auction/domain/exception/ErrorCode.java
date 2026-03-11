@@ -41,6 +41,7 @@ public enum ErrorCode {
     INVALID_AUCTION_TIME("AUC_002", "auction.time.invalid"),
     AUCTION_OVERLAPS("AUC_003", "auction.overlaps"),
     AUCTION_NOT_ACTIVE("AUC_004", "auction.not.active"),
+    AUCTION_CANNOT_CANCEL("AUC_005", "auction.cannot.cancel"),
 
     DEPOSIT_REQUIRED("BID_001", "bid.deposit.required"),
     DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid"),
@@ -50,8 +51,7 @@ public enum ErrorCode {
 
     //Deposit
     DEPOSIT_NOT_FOUND("DEP_001", "deposit.not.found"),
-    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit")
-    ;
+    DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit");
 
     private final String code;
     private final String messageKey;

@@ -5,8 +5,8 @@ import com.example.vehicle_auction.application.mapper.DepositMapper;
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Deposit;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaDepositRepository;
+import com.example.vehicle_auction.domain.model.DepositModel;
+import com.example.vehicle_auction.domain.repository.DepositRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RefundDepositUseCase {
 
-    private final JpaDepositRepository depositRepository;
+    private final DepositRepository depositRepository;
     private final DepositMapper depositMapper;
 
     @Transactional
@@ -27,7 +27,7 @@ public class RefundDepositUseCase {
         log.info("Bắt đầu xử lý hoàn cọc cho Deposit ID: {}", depositId);
 
         // Tìm Deposit
-        Deposit deposit = depositRepository.findById(depositId)
+        DepositModel deposit = depositRepository.findById(depositId)
                 .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION, "Deposit not found"));
         // Thay UNCATEGORIZED_EXCEPTION bằng DEPOSIT_NOT_FOUND nếu bạn đã thêm vào enum
 
@@ -41,7 +41,7 @@ public class RefundDepositUseCase {
         // paymentGateway.refund(deposit.getTransactionReference(), deposit.getAmount());
 
         deposit.setStatus(DepositStatus.REFUNDED);
-        Deposit savedDeposit = depositRepository.save(deposit);
+        DepositModel savedDeposit = depositRepository.save(deposit);
 
         log.info("Đã hoàn cọc thành công cho Deposit ID: {}", depositId);
 

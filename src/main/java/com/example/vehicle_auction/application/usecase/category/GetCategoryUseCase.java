@@ -4,7 +4,7 @@ import com.example.vehicle_auction.application.dto.category.CategoryResponse;
 import com.example.vehicle_auction.application.mapper.CategoryMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaCategoryRepository;
+import com.example.vehicle_auction.domain.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class GetCategoryUseCase {
 
-    private final JpaCategoryRepository categoryRepository;
+    private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
     public Page<CategoryResponse> getAll(Pageable pageable) {

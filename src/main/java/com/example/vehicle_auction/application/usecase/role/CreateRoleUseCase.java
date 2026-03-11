@@ -5,6 +5,10 @@ import com.example.vehicle_auction.application.dto.role.RoleResponse;
 import com.example.vehicle_auction.application.mapper.RoleMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.domain.model.PermissionModel;
+import com.example.vehicle_auction.domain.model.RoleModel;
+import com.example.vehicle_auction.domain.repository.PermissionRepository;
+import com.example.vehicle_auction.domain.repository.RoleRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Permission;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaPermissionRepository;
@@ -15,23 +19,35 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class CreateRoleUseCase {
-    private final JpaRoleRepository jpaRoleRepository;
-    private final JpaPermissionRepository jpaPermissionRepository;
+    private final RoleRepository roleRepository;
+    private final PermissionRepository permissionRepository;
     private final RoleMapper roleMapper;
 
     public RoleResponse execute(RoleRequest req) {
-        if (jpaRoleRepository.existsByName(req.name()))
+        if (roleRepository.existByName(req.name())) {
             throw new AppException(ErrorCode.ROLE_ALREADY_EXISTS);
-        Role role = roleMapper.toEntity(req);
-        if (req.permissionIds() != null) {
-            List<Permission> permissions = jpaPermissionRepository.findAllById(req.permissionIds());
-            role.setPermissions(new HashSet<>(permissions));
         }
-        return roleMapper.toResponse(jpaRoleRepository.save(role));
+
+        RoleModel roleModel = roleMapper.toDomain(req);
+
+        if (req.permissionIds() != null && !req.permissionIds().isEmpty()) {
+            Set<PermissionModel> permissions = req.permissionIds().stream()
+                    .map(id -> permissionRepository.findById(id)
+                            .orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_FOUND)))
+                    .collect(Collectors.toSet());
+
+            roleModel.setPermissions(permissions);
+        }
+
+        RoleModel savedRole = roleRepository.save(roleModel);
+
+        return roleMapper.toResponse(savedRole);
     }
 }

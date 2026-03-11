@@ -27,6 +27,8 @@ public enum ErrorCode {
     ACCOUNT_INVALID_VERIFICATION_TOKEN("ACCOUNT_400", "account.invalid.verification_token"),
     ACCOUNT_ALREADY_VERIFIED("ACCOUNT_400", "account.already.verified"),
 
+    WATCHLIST_ALREADY_EXISTS("WATCHLIST_400", "watchlist.already.exists"),
+
     // Category and Product errors
     CATEGORY_NOT_FOUND("CAT_001", "category.not.found"),
     CATEGORY_ALREADY_EXISTS("CAT_003", "category.already.exists"),

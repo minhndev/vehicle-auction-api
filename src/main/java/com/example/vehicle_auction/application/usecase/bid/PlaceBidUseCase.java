@@ -2,6 +2,7 @@ package com.example.vehicle_auction.application.usecase.bid;
 
 import com.example.vehicle_auction.application.dto.bid.BidRequest;
 import com.example.vehicle_auction.application.dto.bid.BidResponse;
+import com.example.vehicle_auction.application.mapper.BidMapper;
 import com.example.vehicle_auction.domain.event.OutbidEvent;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
@@ -26,6 +27,8 @@ public class PlaceBidUseCase {
     private final AuctionRepository auctionRepository;
     private final BidRepository bidRepository;
     private final DepositRepository depositRepository;
+    private final BidMapper bidMapper;
+
     // Sử dụng ApplicationEventPublisher để phát sự kiện khi có bid mới
     private final ApplicationEventPublisher eventPublisher;
 
@@ -35,11 +38,11 @@ public class PlaceBidUseCase {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Kiểm tra đã nộp cọc chưa
-//        boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
-//        if (!hasDeposited) {
-//            throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
-//        }
+        // Kiểm tra xem bidder đã nộp tiền đặt cọc chưa
+        boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
+        if (!hasDeposited) {
+            throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
+        }
 
         // Lấy AuctionModel lên và khóa row lại (Pessimistic Lock)
         AuctionModel auctionModel = auctionRepository.findByIdWithLock(auctionId)
@@ -61,13 +64,7 @@ public class PlaceBidUseCase {
 
         boolean isWinning = savedBidModel.getBidderId().equals(auctionModel.getWinnerId());
 
-        return new BidResponse(
-                savedBidModel.getId(),
-                savedBidModel.getAuctionId(),
-                savedBidModel.getBidderId(),
-                savedBidModel.getAmount(),
-                savedBidModel.getCreatedAt(),
-                isWinning
-        );
+        return bidMapper.toResponseWithWinningStatus(savedBidModel, isWinning);
+
     }
 }

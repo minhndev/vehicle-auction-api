@@ -4,8 +4,8 @@ import com.example.vehicle_auction.application.dto.product.ProductResponse;
 import com.example.vehicle_auction.application.mapper.ProductMapper;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
+import com.example.vehicle_auction.domain.model.ProductModel;
+import com.example.vehicle_auction.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class GetProductUseCase {
 
-    private final JpaProductRepository productRepository;
+    private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
     public Page<ProductResponse> getAllProducts(Pageable pageable) {
@@ -28,7 +28,7 @@ public class GetProductUseCase {
     }
 
     public ProductResponse getProductById(UUID id) {
-        Product product = productRepository.findByIdAndDeletedFalse(id)
+        ProductModel product = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toResponse(product);
     }

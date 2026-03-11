@@ -3,8 +3,8 @@ package com.example.vehicle_auction.application.usecase.product;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
+import com.example.vehicle_auction.domain.model.ProductModel;
+import com.example.vehicle_auction.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +16,10 @@ import java.util.UUID;
 @Transactional
 public class DeleteProductUseCase {
 
-    private final JpaProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public void execute(UUID id) {
-        Product product = productRepository.findByIdAndDeletedFalse(id)
+        ProductModel product = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         if (product.getStatus() == ProductStatus.IN_AUCTION) {

@@ -2,7 +2,7 @@ package com.example.vehicle_auction.application.usecase.bid;
 
 import com.example.vehicle_auction.application.dto.bid.BidResponse;
 import com.example.vehicle_auction.application.mapper.BidMapper;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaBidRepository;
+import com.example.vehicle_auction.domain.repository.BidRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -16,13 +16,13 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class GetBidHistoryUseCase {
 
-    private final JpaBidRepository bidRepository;
+    private final BidRepository bidRepository;
     private final BidMapper bidMapper;
 
     @Cacheable(value = "top_bids", key = "#auctionId")
     public List<BidResponse> getTop10Bids(UUID auctionId) {
 
-        return bidRepository.findTop10ByAuctionIdOrderByAmountDesc(auctionId)
+        return bidRepository.findTop10ByAuctionId(auctionId)
                 .stream()
                 .map(bidMapper::toResponse)
                 .toList();

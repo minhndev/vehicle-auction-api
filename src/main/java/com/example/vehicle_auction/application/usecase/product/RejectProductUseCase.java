@@ -5,8 +5,8 @@ import com.example.vehicle_auction.application.mapper.ProductMapper;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
+import com.example.vehicle_auction.domain.model.ProductModel;
+import com.example.vehicle_auction.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RejectProductUseCase {
 
-    private final JpaProductRepository jpaProductRepository;
+    private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
     @Transactional
@@ -27,7 +27,7 @@ public class RejectProductUseCase {
         log.info("Starting to approve product with ID: {}", productId);
 
         // Find the product by ID
-        Product product = jpaProductRepository.findByIdAndDeletedFalse(productId)
+        ProductModel product = productRepository.findByIdAndDeletedFalse(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
         // Update the product status to APPROVED
@@ -39,7 +39,7 @@ public class RejectProductUseCase {
         product.setStatus(ProductStatus.REJECTED);
 
         // Save the updated product
-        Product updatedProduct = jpaProductRepository.save(product);
+        ProductModel updatedProduct = productRepository.save(product);
         log.info("Product with ID: {} has been REJECTED", updatedProduct.getId());
 
         return productMapper.toResponse(updatedProduct);

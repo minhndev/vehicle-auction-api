@@ -5,8 +5,8 @@ import com.example.vehicle_auction.application.mapper.DepositMapper;
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Deposit;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaDepositRepository;
+import com.example.vehicle_auction.domain.model.DepositModel;
+import com.example.vehicle_auction.domain.repository.DepositRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,13 +18,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ForfeitDepositUseCase {
 
-    private final JpaDepositRepository depositRepository;
+    private final DepositRepository depositRepository;
     private final DepositMapper depositMapper;
 
     public DepositResponse execute(UUID id){
         log.info("Starting to forfeit deposit with ID: {}", id);
 
-        Deposit deposit = depositRepository.findById(id)
+        DepositModel deposit = depositRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DEPOSIT_NOT_FOUND));
 
         if (deposit.getStatus() != DepositStatus.PAID){
@@ -34,7 +34,7 @@ public class ForfeitDepositUseCase {
         }
 
         deposit.setStatus(DepositStatus.FORFEITED);
-        Deposit updatedDeposit = depositRepository.save(deposit);
+        DepositModel updatedDeposit = depositRepository.save(deposit);
         log.info("Deposit with ID: {} has been FORFEITED", updatedDeposit.getId());
 
         return depositMapper.toResponse(updatedDeposit);

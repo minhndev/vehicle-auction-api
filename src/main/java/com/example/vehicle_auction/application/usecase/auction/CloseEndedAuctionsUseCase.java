@@ -3,12 +3,14 @@ package com.example.vehicle_auction.application.usecase.auction;
 import com.example.vehicle_auction.domain.enums.AuctionStatus;
 import com.example.vehicle_auction.domain.enums.OrderStatus;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Auction;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Order;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Product;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAuctionRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaOrderRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaProductRepository;
+import com.example.vehicle_auction.domain.exception.AppException;
+import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.domain.model.AuctionModel;
+import com.example.vehicle_auction.domain.model.OrderModel;
+import com.example.vehicle_auction.domain.model.ProductModel;
+import com.example.vehicle_auction.domain.repository.AuctionRepository;
+import com.example.vehicle_auction.domain.repository.OrderRepository;
+import com.example.vehicle_auction.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -25,32 +27,34 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CloseEndedAuctionsUseCase {
 
-    private final JpaAuctionRepository auctionRepository;
-    private final JpaOrderRepository orderRepository;
+    private final AuctionRepository auctionRepository;
+    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public void execute() {
         LocalDateTime now = LocalDateTime.now();
         int BATCH_SIZE = 100;
         Pageable pageable = PageRequest.of(0, BATCH_SIZE);
-        Page<Auction> page;
+        Page<AuctionModel> page;
 
         do {
             page = auctionRepository.findAuctionsToClose(AuctionStatus.ACTIVE, now, pageable);
-            List<Auction> auctions = page.getContent();
+            List<AuctionModel> auctions = page.getContent();
 
             if (auctions.isEmpty()) {
                 break;
             }
 
-            for (Auction auction : auctions) {
-                Product product = auction.getProduct();
+            for (AuctionModel auction : auctions) {
+                ProductModel product = productRepository.findById(auction.getProductId())
+                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
                 if (auction.getWinnerId() != null) {
                     auction.setStatus(AuctionStatus.COMPLETED);
                     product.setStatus(ProductStatus.SOLD);
 
-                    Order order = Order.builder()
+                    OrderModel order = OrderModel.builder()
                             .auctionId(auction.getId())
                             .winnerId(auction.getWinnerId())
                             .totalAmount(auction.getCurrentPrice())

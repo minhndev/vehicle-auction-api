@@ -8,6 +8,10 @@ import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.Jpa
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Repository
 @RequiredArgsConstructor
 public class BidRepositoryImpl implements BidRepository {
@@ -20,5 +24,13 @@ public class BidRepositoryImpl implements BidRepository {
         Bid entity = mapper.toEntity(bidModel);
         Bid savedEntity = jpaBidRepository.save(entity);
         return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public List<BidModel> findTop10ByAuctionId(UUID auctionId) {
+        return jpaBidRepository.findTop10ByAuctionIdOrderByAmountDesc(auctionId)
+                .stream()
+                .map(mapper::toDomain)
+                .collect(Collectors.toList());
     }
 }

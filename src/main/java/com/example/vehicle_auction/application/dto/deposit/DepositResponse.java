@@ -12,6 +12,7 @@ public record DepositResponse(
         String status,
         String paymentMethod,
         String transactionReference,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String paymentUrl
 ) {
 }

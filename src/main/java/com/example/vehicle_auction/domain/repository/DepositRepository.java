@@ -10,5 +10,7 @@ public interface DepositRepository {
 
     Optional<DepositModel> findById(UUID id);
 
+    Optional<DepositModel> findByTransactionReference(String transactionReference);
+
     DepositModel save(DepositModel depositModel);
 }

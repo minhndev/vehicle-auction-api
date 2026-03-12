@@ -34,6 +34,12 @@ public class DepositRepositoryImpl implements DepositRepository {
     }
 
     @Override
+    public Optional<DepositModel> findByTransactionReference(String transactionReference) {
+        return jpaDepositRepository.findByTransactionReference(transactionReference)
+                .map(depositEntityMapper::toDomain);
+    }
+
+    @Override
     public DepositModel save(DepositModel depositModel) {
         Deposit entity;
         if (depositModel.getId() != null) {

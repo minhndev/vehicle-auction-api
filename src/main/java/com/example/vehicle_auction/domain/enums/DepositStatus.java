@@ -4,5 +4,6 @@ public enum DepositStatus {
     PENDING,
     PAID,
     REFUNDED,
-    FORFEITED
+    FORFEITED,
+    FAILED
 }

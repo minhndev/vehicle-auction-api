@@ -1,20 +1,19 @@
 package com.example.vehicle_auction.domain.model;
 
 import com.example.vehicle_auction.domain.enums.DepositStatus;
-import lombok.Builder;
+import com.example.vehicle_auction.domain.model.base.AuditModel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-public class DepositModel {
+@SuperBuilder
+public class DepositModel extends AuditModel {
 
-    private UUID id;
     private UUID accountId;
     private UUID auctionId;
     private BigDecimal amount;
@@ -22,7 +21,4 @@ public class DepositModel {
     private String paymentMethod;
     private String transactionReference;
 
-    // Các trường Audit
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 }

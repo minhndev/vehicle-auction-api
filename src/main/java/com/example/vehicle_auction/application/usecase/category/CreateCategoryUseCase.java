@@ -43,7 +43,7 @@ public class CreateCategoryUseCase {
             slug = slug + "-" + System.currentTimeMillis();
         }
 
-        CategoryModel category = categoryMapper.toEntity(request);
+        CategoryModel category = categoryMapper.toDomain(request);
         category.setSlug(slug);
 
         CategoryModel savedCategory = categoryRepository.save(category);
@@ -60,7 +60,7 @@ public class CreateCategoryUseCase {
         String normalized = Normalizer.normalize(noWhiteSpace, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
 
-        slug = slug.replaceAll("đ", "d").replaceAll("Đ", "D"); // Remove leading and trailing hyphens
+        slug = slug.replaceAll("đ", "d").replaceAll("Đ", "D");
 
         return slug.toLowerCase(Locale.ENGLISH).replaceAll("-{2,}", "-").replaceAll("^-|-$", "");
     }

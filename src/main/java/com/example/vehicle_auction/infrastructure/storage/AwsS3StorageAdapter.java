@@ -20,11 +20,11 @@ public class AwsS3StorageAdapter implements FileStoragePort {
 
     private final S3Client s3Client;
 
-    @Value("${aws.s3.bucket-name}")
+    @Value("${spring.aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${aws.s3.region}")
-    private String region;
+    @Value("${spring.aws.s3.endpoint}")
+    private String endpoint;
 
     @Override
     public String uploadFile(String fileName, String contentType, InputStream inputStream, long contentLength) {
@@ -41,13 +41,16 @@ public class AwsS3StorageAdapter implements FileStoragePort {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
 
-            // Trả về URL public của ảnh
-            String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, uniqueFileName);
-            log.info("Uploaded file to S3 successfully: {}", fileUrl);
+
+//            String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, uniqueFileName);
+//            log.info("Uploaded file to S3 successfully: {}", fileUrl);
+
+            String fileUrl = String.format("%s/%s/%s", endpoint, bucketName, uniqueFileName);
+            log.info("Đã upload file thành công lên MinIO: {}", fileUrl);
             return fileUrl;
 
         } catch (Exception e) {
-            log.error("Failed to upload file to S3", e);
+            log.error("Failed to upload file", e);
             throw new RuntimeException("Lỗi upload ảnh lên hệ thống lưu trữ.", e);
         }
     }
@@ -55,8 +58,10 @@ public class AwsS3StorageAdapter implements FileStoragePort {
     @Override
     public void deleteFile(String fileUrl) {
         try {
-            // Cắt chuỗi URL để lấy key gốc của ảnh trên S3
-            String key = fileUrl.substring(fileUrl.indexOf("amazonaws.com/") + 14);
+//            String key = fileUrl.substring(fileUrl.indexOf("amazonaws.com/") + 14);
+
+            String prefix = String.format("%s/%s/", endpoint, bucketName);
+            String key = fileUrl.replace(prefix, "");
 
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(bucketName)
@@ -64,9 +69,9 @@ public class AwsS3StorageAdapter implements FileStoragePort {
                     .build();
 
             s3Client.deleteObject(deleteObjectRequest);
-            log.info("Deleted file from S3: {}", key);
+            log.info("Deleted file: {}", key);
         } catch (Exception e) {
-            log.error("Failed to delete file from S3: {}", fileUrl, e);
+            log.error("Failed to delete file: {}", fileUrl, e);
         }
     }
 }

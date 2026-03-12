@@ -8,15 +8,20 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 
+import java.net.URI;
+
 @Configuration
 public class AwsS3Config {
-    @Value("${aws.s3.region}")
+    @Value("${spring.aws.s3.endpoint}")
+    private String endpoint;
+
+    @Value("${spring.aws.s3.region}")
     private String region;
 
-    @Value("${aws.s3.access-key}")
+    @Value("${spring.aws.s3.access-key}")
     private String accessKey;
 
-    @Value("${aws.s3.secret-key}")
+    @Value("${spring.aws.s3.secret-key}")
     private String secretKey;
 
     @Bean
@@ -26,6 +31,8 @@ public class AwsS3Config {
                 .credentialsProvider(StaticCredentialsProvider.create(
                         AwsBasicCredentials.create(accessKey, secretKey)
                 ))
+                .endpointOverride(URI.create(endpoint))
+                .forcePathStyle(true)
                 .build();
     }
 }

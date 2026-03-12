@@ -4,9 +4,10 @@ import com.example.vehicle_auction.domain.enums.AuctionStatus;
 import com.example.vehicle_auction.domain.enums.BidStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import lombok.Builder;
+import com.example.vehicle_auction.domain.model.base.AuditModel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,10 +15,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-public class AuctionModel {
+@SuperBuilder
+public class AuctionModel extends AuditModel {
 
-    private UUID id;
     private UUID productId;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -46,18 +46,21 @@ public class AuctionModel {
         this.currentPrice = amount;
         this.winnerId = bidderId;
 
-        // 4. Anti-snipping (Gia hạn nếu đặt ở 5 phút cuối)
+        // Anti-snipping
         LocalDateTime currentEnd = (this.actualEndTime != null) ? this.actualEndTime : this.endTime;
         if (now.plusMinutes(5).isAfter(currentEnd)) {
             this.actualEndTime = currentEnd.plusMinutes(5);
         }
 
-        return BidModel.builder()
-                .auctionId(this.id)
+        BidModel newBid = BidModel.builder()
+                .auctionId(this.getId())
                 .bidderId(bidderId)
                 .amount(amount)
                 .status(BidStatus.VALID)
-                .createdAt(now)
                 .build();
+
+        newBid.setCreatedAt(now);
+
+        return newBid;
     }
 }

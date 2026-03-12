@@ -2,9 +2,9 @@ package com.example.vehicle_auction.domain.model;
 
 import com.example.vehicle_auction.domain.enums.ProductStatus;
 import com.example.vehicle_auction.domain.model.base.FullModel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,9 +14,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
+@SuperBuilder
 public class ProductModel extends FullModel {
-    private UUID id;
     private UUID categoryId;
     private UUID sellerId;
 

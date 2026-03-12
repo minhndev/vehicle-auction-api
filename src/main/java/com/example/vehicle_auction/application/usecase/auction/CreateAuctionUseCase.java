@@ -55,7 +55,7 @@ public class CreateAuctionUseCase {
         }
 
         // Map request to entity
-        AuctionModel auction = auctionMapper.toEntity(request);
+        AuctionModel auction = auctionMapper.toDomain(request);
         auction.setCurrentPrice(request.startPrice());
         auction.setStatus(AuctionStatus.UPCOMING);
 

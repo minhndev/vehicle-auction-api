@@ -29,7 +29,7 @@ public class CancelAuctionUseCase {
         AuctionModel auction = auctionRepository.findByIdWithLock(auctionId)
                 .orElseThrow(() -> new RuntimeException("Auction not found"));
 
-        if (auction.getStatus() == com.example.vehicle_auction.domain.enums.AuctionStatus.CANCELLED) {
+        if (auction.getStatus() == AuctionStatus.CANCELLED) {
             throw new AppException(ErrorCode.AUCTION_CANNOT_CANCEL);
         }
 

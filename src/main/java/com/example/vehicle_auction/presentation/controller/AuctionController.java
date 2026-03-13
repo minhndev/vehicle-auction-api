@@ -66,7 +66,7 @@ public class AuctionController {
     @ApiResponse(responseCode = "400", description = "Auction cannot be cancelled in its current status")
     @ApiResponse(responseCode = "404", description = "Auction not found")
     @PostMapping("/{id}/cancel")
-    // @PreAuthorize("hasAuthority('AUCTION_CANCEL')") // Mở ra khi bạn làm phân quyền
+    // @PreAuthorize("hasAuthority('AUCTION_CANCEL')")
     public ResponseEntity<Void> cancelAuction(
             @PathVariable("id") java.util.UUID id,
             @RequestBody @Valid CancelAuctionRequest request) {

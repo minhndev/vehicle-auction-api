@@ -8,6 +8,9 @@ import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.Jpa
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @Repository
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
@@ -25,5 +28,10 @@ public class OrderRepositoryImpl implements OrderRepository {
             entity = mapper.toEntity(orderModel);
         }
         return mapper.toDomain(jpaOrderRepository.save(entity));
+    }
+
+    @Override
+    public Optional<OrderModel> findById(UUID id) {
+        return jpaOrderRepository.findById(id).map(mapper::toDomain);
     }
 }

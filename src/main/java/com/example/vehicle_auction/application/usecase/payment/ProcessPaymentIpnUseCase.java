@@ -4,10 +4,13 @@ import com.example.vehicle_auction.application.dto.payment.IpnResponse;
 import com.example.vehicle_auction.application.port.out.PaymentGatewayPort;
 import com.example.vehicle_auction.application.port.out.TransactionRepositoryPort;
 import com.example.vehicle_auction.domain.enums.DepositStatus;
+import com.example.vehicle_auction.domain.enums.OrderStatus;
 import com.example.vehicle_auction.domain.enums.PaymentStatus;
 import com.example.vehicle_auction.domain.model.DepositModel;
+import com.example.vehicle_auction.domain.model.OrderModel;
 import com.example.vehicle_auction.domain.model.TransactionModel;
 import com.example.vehicle_auction.domain.repository.DepositRepository;
+import com.example.vehicle_auction.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -23,6 +27,7 @@ public class ProcessPaymentIpnUseCase {
     private final PaymentGatewayPort paymentGatewayPort;
     private final TransactionRepositoryPort transactionRepositoryPort;
     private final DepositRepository depositRepository;
+    private final OrderRepository orderRepository;
 
     @Transactional
     public IpnResponse execute(Map<String, String> vnpayParams) {
@@ -53,23 +58,50 @@ public class ProcessPaymentIpnUseCase {
             transaction.markAsSuccess();
 
             if ("DEPOSIT".equalsIgnoreCase(transaction.getTargetType())) {
-                DepositModel deposit = depositRepository.findById(transaction.getReferenceId())
+
+                UUID depositId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                DepositModel deposit = depositRepository.findById(depositId)
                         .orElseThrow(() -> new RuntimeException("Deposit not found"));
 
                 deposit.setStatus(DepositStatus.PAID);
                 deposit.setTransactionReference(txnRef);
                 depositRepository.save(deposit);
-            }
 
+            } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {
+
+                UUID orderId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                OrderModel order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Order not found"));
+
+                order.setStatus(OrderStatus.PAID);
+                orderRepository.save(order);
+
+            }
         } else {
             transaction.markAsFailed();
 
             if ("DEPOSIT".equalsIgnoreCase(transaction.getTargetType())) {
-                DepositModel deposit = depositRepository.findById(transaction.getReferenceId())
+
+                UUID depositId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                DepositModel deposit = depositRepository.findById(depositId)
                         .orElseThrow(() -> new RuntimeException("Deposit not found"));
 
                 deposit.setStatus(DepositStatus.FAILED);
                 depositRepository.save(deposit);
+
+            } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {
+
+                UUID orderId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                OrderModel order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Order not found"));
+
+                order.setStatus(OrderStatus.PENDING_PAYMENT);
+                orderRepository.save(order);
+
             }
         }
 

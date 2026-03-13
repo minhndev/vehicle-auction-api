@@ -10,13 +10,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(org.springframework.web.socket.config.annotation.StompEndpointRegistry registry) {
         registry.addEndpoint("/ws-auctions")
-                .setAllowedOriginPatterns("*") // Cho phép tất cả các nguồn gốc (có thể tùy chỉnh nếu cần)
-                .withSockJS(); // Sử dụng SockJS để hỗ trợ fallback cho trình duyệt không hỗ trợ WebSocket
+                .setAllowedOriginPatterns("*") // Allow all origins (customizable if needed)
+                .withSockJS(); // Use SockJS as fallback for browsers not supporting WebSocket
     }
 
     @Override
     public void configureMessageBroker(org.springframework.messaging.simp.config.MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/topic", "/queue"); // Kênh để gửi thông báo real-time
-        registry.setApplicationDestinationPrefixes("/app"); // Prefix cho các message từ client gửi lên server
+        registry.enableSimpleBroker("/topic", "/queue"); // Channel for real-time notifications
+        registry.setApplicationDestinationPrefixes("/app"); // Prefix for messages from client to server
     }
 }

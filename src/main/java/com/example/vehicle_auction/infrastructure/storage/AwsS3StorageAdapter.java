@@ -20,23 +20,23 @@ public class AwsS3StorageAdapter implements FileStoragePort {
 
     private final S3Client s3Client;
 
-    @Value("${spring.aws.s3.bucket-name}")
+    @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    @Value("${spring.aws.s3.endpoint}")
+    @Value("${aws.s3.endpoint}")
     private String endpoint;
 
     @Override
     public String uploadFile(String fileName, String contentType, InputStream inputStream, long contentLength) {
         try {
-            // Đổi tên file để tránh trùng lặp
+            // Rename file to avoid duplication
             String uniqueFileName = "products/" + UUID.randomUUID() + "-" + fileName.replaceAll("\\s+", "_");
 
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(uniqueFileName)
                     .contentType(contentType)
-                    // .acl(ObjectCannedACL.PUBLIC_READ) // Bỏ comment nếu Bucket của bạn cần cấp quyền Public explicitly
+                    // .acl(ObjectCannedACL.PUBLIC_READ)
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
@@ -46,12 +46,12 @@ public class AwsS3StorageAdapter implements FileStoragePort {
 //            log.info("Uploaded file to S3 successfully: {}", fileUrl);
 
             String fileUrl = String.format("%s/%s/%s", endpoint, bucketName, uniqueFileName);
-            log.info("Đã upload file thành công lên MinIO: {}", fileUrl);
+            log.info("Uploaded file successfully to MinIO: {}", fileUrl);
             return fileUrl;
 
         } catch (Exception e) {
             log.error("Failed to upload file", e);
-            throw new RuntimeException("Lỗi upload ảnh lên hệ thống lưu trữ.", e);
+            throw new RuntimeException("Error uploading image to storage system.", e);
         }
     }
 

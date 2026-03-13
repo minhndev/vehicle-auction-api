@@ -15,7 +15,7 @@ public interface CategoryRepository {
     Optional<CategoryModel> findByIdAndDeletedFalse(UUID id);
     Optional<CategoryModel> findByIdAndDeletedTrue(UUID id);
 
-    // Hàm chuẩn để fetch chi tiết và lưu trữ
+    // Standard method to fetch details and save
     Optional<CategoryModel> findById(UUID id);
     CategoryModel save(CategoryModel categoryModel);
 }

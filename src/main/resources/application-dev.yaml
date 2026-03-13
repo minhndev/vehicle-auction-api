@@ -40,13 +40,14 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
-  aws:
-    s3:
-      endpoint: http://localhost:9000
-      bucket-name: vehicle-auction-bucket
-      region: ap-southeast-1
-      access-key: minioadmin
-      secret-key: minioadmin
+
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    bucket-name: vehicle-auction-bucket
+    region: ap-southeast-1
+    access-key: minioadmin
+    secret-key: minioadmin
 
 
 app:

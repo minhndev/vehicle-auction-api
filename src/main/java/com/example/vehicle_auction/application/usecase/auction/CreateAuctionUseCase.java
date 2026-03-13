@@ -31,22 +31,18 @@ public class CreateAuctionUseCase {
     public AuctionResponse execute(AuctionRequest request){
         log.info("Starting to create new auction for product ID: {}", request.productId());
 
-        // validate logic time
         if(request.endTime().isBefore(request.startTime()) || request.endTime().isEqual(request.startTime())){
             throw new AppException(ErrorCode.INVALID_AUCTION_TIME);
         }
 
-        // Validate product existence
         ProductModel product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        // Check if product is already in an active auction
         if (product.getStatus() == ProductStatus.PENDING || product.getStatus() == ProductStatus.IN_AUCTION || product.getStatus() == ProductStatus.SOLD) {
             log.warn("Product with ID {} is not approved for auction", request.productId());
             throw new AppException(ErrorCode.PRODUCT_NOT_APPROVED);
         }
 
-        // Check for overlapping auctions
         boolean isOverlapping = auctionRepository.existsByProductIdAndStatusIn(
                 product.getId(),
                 List.of(AuctionStatus.UPCOMING, AuctionStatus.ACTIVE));
@@ -54,7 +50,6 @@ public class CreateAuctionUseCase {
             throw new AppException(ErrorCode.AUCTION_OVERLAPS);
         }
 
-        // Map request to entity
         AuctionModel auction = auctionMapper.toDomain(request);
         auction.setCurrentPrice(request.startPrice());
         auction.setStatus(AuctionStatus.UPCOMING);
@@ -63,7 +58,6 @@ public class CreateAuctionUseCase {
 
         productRepository.save(product);
 
-        // Save auction to database
         AuctionModel savedAuction = auctionRepository.save(auction);
         log.info("Successfully created auction with ID: {} for product ID: {}", savedAuction.getId(), product.getId());
 

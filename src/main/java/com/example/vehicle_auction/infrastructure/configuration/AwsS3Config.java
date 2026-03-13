@@ -12,16 +12,16 @@ import java.net.URI;
 
 @Configuration
 public class AwsS3Config {
-    @Value("${spring.aws.s3.endpoint}")
+    @Value("${aws.s3.endpoint}")
     private String endpoint;
 
-    @Value("${spring.aws.s3.region}")
+    @Value("${aws.s3.region}")
     private String region;
 
-    @Value("${spring.aws.s3.access-key}")
+    @Value("${aws.s3.access-key}")
     private String accessKey;
 
-    @Value("${spring.aws.s3.secret-key}")
+    @Value("${aws.s3.secret-key}")
     private String secretKey;
 
     @Bean

@@ -25,42 +25,42 @@ public class OutbidNotificationListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleOutbidEvent(OutbidEvent event) {
-        log.info("Bắt đầu gửi thông báo cho user {} vì bị vượt giá ở phiên {}",
+        log.info("Started sending notification to user {} due to outbid in auction {}",
                 event.previousWinnerId(), event.auctionId());
 
         try {
-            // 1. LƯU THÔNG BÁO VÀO MONGODB
-            String title = "Bạn đã bị vượt giá!";
-            String content = "Có người vừa trả giá " + event.newHighestAmount() + " cho phiên đấu giá mà bạn tham gia. Hãy đặt giá cao hơn để giành lại vị trí dẫn đầu!";
+            // 1. SAVE NOTIFICATION TO MONGODB
+            String title = "You have been outbid!";
+            String content = "Someone just bid " + event.newHighestAmount() + " for the auction you are participating in. Place a higher bid to reclaim the lead!";
 
             notificationUseCase.createNotification(
                     event.previousWinnerId(),
-                    NotificationType.OUTBID, // Nhớ đảm bảo enum này tồn tại trong NotificationType
+                    NotificationType.OUTBID, // Ensure this enum exists in NotificationType
                     title,
                     content,
                     event.auctionId(),
                     "AUCTION"
             );
 
-            // 2. ĐẨY THÔNG BÁO QUA WEBSOCKETS CHO MỌI NGƯỜI ĐANG XEM PHIÊN ĐẤU GIÁ
+            // 2. PUSH NOTIFICATION VIA WEBSOCKETS TO EVERYONE VIEWING THE AUCTION
             // URL Topic: /topic/auctions/{auctionId}
             String destination = "/topic/auctions/" + event.auctionId();
 
             OutbidMessageResponse payload = new OutbidMessageResponse(
                     event.auctionId(),
                     event.newHighestAmount(),
-                    "Có người vừa đặt giá mới: " + event.newHighestAmount()
+                    "Someone just placed a new bid: " + event.newHighestAmount()
             );
 
             messagingTemplate.convertAndSend(destination, payload);
-            log.info("Đã đẩy dữ liệu Real-time thành công tới kênh: {}", destination);
+            log.info("Successfully pushed real-time data to channel: {}", destination);
 
         } catch (Exception e) {
-            log.error("Lỗi khi xử lý sự kiện vượt giá: {}", e.getMessage(), e);
+            log.error("Error processing outbid event: {}", e.getMessage(), e);
         }
     }
 
-    // DTO siêu nhỏ gọn dùng để gửi qua WebSockets
+    // Lightweight DTO for sending via WebSockets
     public record OutbidMessageResponse(UUID auctionId, BigDecimal currentPrice, String message) {}
 
 }

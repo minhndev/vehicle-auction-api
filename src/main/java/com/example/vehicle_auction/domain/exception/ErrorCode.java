@@ -44,6 +44,7 @@ public enum ErrorCode {
     AUCTION_OVERLAPS("AUC_003", "auction.overlaps"),
     AUCTION_NOT_ACTIVE("AUC_004", "auction.not.active"),
     AUCTION_CANNOT_CANCEL("AUC_005", "auction.cannot.cancel"),
+    UNAUTHORIZED_ACTION("AUC_006", "auction.unauthorized.action"),
 
     DEPOSIT_REQUIRED("BID_001", "bid.deposit.required"),
     DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid"),
@@ -51,12 +52,19 @@ public enum ErrorCode {
     ACCOUNT_UNAUTHORIZED("ACCOUNT_401", "account.unauthorized"),
     REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized"),
 
-    //Deposit
+    // Deposit
     DEPOSIT_NOT_FOUND("DEP_001", "deposit.not.found"),
     DEPOSIT_CANNOT_FORFEIT("DEP_002", "deposit.cannot.forfeit"),
 
-    //File
-    FILE_UPLOAD_FAILED("FILE_001", "file.upload.failed");
+    // Order
+    ORDER_NOT_FOUND("ORD_001", "order.not.found"),
+    ORDER_CANNOT_BE_PAID("ORD_002", "order.cannot.be.paid"),
+    ORDER_PAYMENT_EXPIRED("ORD_003", "order.payment.expired"),
+
+
+    // File
+    FILE_UPLOAD_FAILED("FILE_001", "file.upload.failed"),
+    FILE_TOO_LARGE("FILE_002", "file.too.large"),;
 
     private final String code;
     private final String messageKey;

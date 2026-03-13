@@ -31,12 +31,10 @@ public class CreateCategoryUseCase {
     public CategoryResponse execute(CategoryRequest request){
         log.info("Creating new category with name: {}", request.name());
 
-        // Check if category with the same name already exists
         if  (categoryRepository.existsByName(request.name())){
             throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS);
         }
 
-        // Generate slug from category name
         String slug = generateSlug(request.name());
 
         if  (categoryRepository.existsBySlug(slug)){
@@ -52,7 +50,6 @@ public class CreateCategoryUseCase {
         return categoryMapper.toResponse(savedCategory);
     }
 
-    // Utility method to generate slug from category name
     private String generateSlug(String name){
         if (name == null) return "";
 

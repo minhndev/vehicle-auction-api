@@ -28,8 +28,6 @@ public class PlaceBidUseCase {
     private final BidRepository bidRepository;
     private final DepositRepository depositRepository;
     private final BidMapper bidMapper;
-
-    // Sử dụng ApplicationEventPublisher để phát sự kiện khi có bid mới
     private final ApplicationEventPublisher eventPublisher;
 
     @CacheEvict(value = "top_bids", key = "#auctionId")
@@ -38,26 +36,21 @@ public class PlaceBidUseCase {
 
         LocalDateTime now = LocalDateTime.now();
 
-        // Kiểm tra xem bidder đã nộp tiền đặt cọc chưa
         boolean hasDeposited = depositRepository.hasPaidDeposit(auctionId, bidderId);
         if (!hasDeposited) {
             throw new AppException(ErrorCode.DEPOSIT_REQUIRED);
         }
 
-        // Lấy AuctionModel lên và khóa row lại (Pessimistic Lock)
         AuctionModel auctionModel = auctionRepository.findByIdWithLock(auctionId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
 
-        // Lấy previous winnerId trước khi đặt bid mới
         UUID previousWinnerId = auctionModel.getWinnerId();
 
-        // Đặt bid
         BidModel newBidModel = auctionModel.placeBid(request.amount(), bidderId, now);
 
         auctionRepository.save(auctionModel);
         BidModel savedBidModel = bidRepository.save(newBidModel);
 
-        // Nếu có previous winner và không phải người đặt bid mới thì phát sự kiện Outbid
         if (previousWinnerId != null && !previousWinnerId.equals(bidderId)){
             eventPublisher.publishEvent(new OutbidEvent(previousWinnerId, auctionId, request.amount()));
         }

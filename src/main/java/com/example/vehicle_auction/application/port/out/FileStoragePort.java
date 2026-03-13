@@ -4,11 +4,11 @@ import java.io.InputStream;
 
 public interface FileStoragePort {
     /**
-     * @param fileName Tên file gốc (ví dụ: car.jpg)
-     * @param contentType Kiểu file (ví dụ: image/jpeg)
-     * @param inputStream Luồng dữ liệu của file
-     * @param contentLength Kích thước file (để S3 tối ưu upload)
-     * @return URL public của ảnh sau khi upload thành công
+     * @param fileName Original file name (e.g., car.jpg)
+     * @param contentType File type (e.g., image/jpeg)
+     * @param inputStream Data stream of the file
+     * @param contentLength File size (for S3 optimized upload)
+     * @return Public URL of the image after successful upload
      */
     String uploadFile(String fileName, String contentType, InputStream inputStream, long contentLength);
 

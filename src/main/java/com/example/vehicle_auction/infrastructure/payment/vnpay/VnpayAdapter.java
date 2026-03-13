@@ -2,7 +2,9 @@ package com.example.vehicle_auction.infrastructure.payment.vnpay;
 
 import com.example.vehicle_auction.application.dto.payment.PaymentRequest;
 import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
+import com.example.vehicle_auction.application.dto.payment.RefundRequest;
 import com.example.vehicle_auction.application.port.out.PaymentGatewayPort;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Slf4j
 @Component
 public class VnpayAdapter implements PaymentGatewayPort {
     @Value("${vnpay.tmn-code}")
@@ -109,6 +112,27 @@ public class VnpayAdapter implements PaymentGatewayPort {
         return signValue.equals(vnp_SecureHash);
     }
 
+    // Mock refund method
+    @Override
+    public boolean refund(RefundRequest request) {
+        log.info("--------------------------------------------------");
+        log.info("[MOCK VNPAY] Simulating refund via VNPay...");
+        log.info("TxnRef: {}", request.transactionReference());
+        log.info("Amount: {}", request.amount());
+        log.info("RefundType: {}", request.refundType());
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        log.info("[MOCK VNPAY] ✅ Refund successful!");
+        log.info("--------------------------------------------------");
+
+        return true;
+    }
+
     private String hmacSHA512(String key, String data) {
         try {
             Mac hmac512 = Mac.getInstance("HmacSHA512");
@@ -124,4 +148,6 @@ public class VnpayAdapter implements PaymentGatewayPort {
             throw new RuntimeException("Failed to generate HMAC-SHA512 for VNPay", ex);
         }
     }
+
+
 }

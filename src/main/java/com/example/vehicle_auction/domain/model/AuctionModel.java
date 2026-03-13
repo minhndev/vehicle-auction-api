@@ -31,18 +31,18 @@ public class AuctionModel extends AuditModel {
     private Integer version;
 
     public BidModel placeBid(BigDecimal amount, UUID bidderId, LocalDateTime now) {
-        // Validate trạng thái và thời gian
+        // Validate status and time
         if (status != AuctionStatus.ACTIVE || now.isBefore(startTime) || now.isAfter(endTime)) {
             throw new AppException(ErrorCode.AUCTION_NOT_ACTIVE);
         }
 
-        // Validate bước giá
+        // Validate bid increment
         BigDecimal minRequiredBid = currentPrice.add(bidIncrement);
         if (amount.compareTo(minRequiredBid) < 0) {
             throw new AppException(ErrorCode.BID_AMOUNT_TOO_LOW, minRequiredBid);
         }
 
-        // Cập nhật giá và người thắng tạm thời
+        // Update price and temporary winner
         this.currentPrice = amount;
         this.winnerId = bidderId;
 

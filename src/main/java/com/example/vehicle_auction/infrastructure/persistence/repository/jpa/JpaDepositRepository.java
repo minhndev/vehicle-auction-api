@@ -20,4 +20,6 @@ public interface JpaDepositRepository extends JpaRepository<Deposit, UUID> {
     Optional<Deposit> findByTransactionReference(String transactionReference);
 
     Optional<Deposit> findByAuctionIdAndAccountIdAndStatus(UUID auctionId, UUID accountId, DepositStatus status);
+
+    Optional<Deposit> findByAuctionIdAndAccountId(UUID auctionId, UUID accountId);
 }

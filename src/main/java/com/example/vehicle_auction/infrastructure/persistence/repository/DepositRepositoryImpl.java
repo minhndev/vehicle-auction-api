@@ -65,4 +65,10 @@ public class DepositRepositoryImpl implements DepositRepository {
         }
         return depositEntityMapper.toDomain(jpaDepositRepository.save(entity));
     }
+
+    @Override
+    public Optional<DepositModel> findByAuctionIdAndAccountId(UUID auctionId, UUID accountId) {
+        return jpaDepositRepository.findByAuctionIdAndAccountId(auctionId, accountId)
+                .map(depositEntityMapper::toDomain);
+    }
 }

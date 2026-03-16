@@ -24,7 +24,7 @@ public class PayOrderUseCase {
     private final OrderRepository orderRepository;
     private final CreatePaymentUseCase createPaymentUseCase;
 
-    @Transactional
+    @Transactional(noRollbackFor = AppException.class)
     public PaymentResponse execute(UUID orderId, UUID accountId, String ipAddress) {
         log.info("Started processing payment for Order ID: {} by Account ID: {}", orderId, accountId);
 
@@ -48,6 +48,11 @@ public class PayOrderUseCase {
             orderRepository.save(order);
 
             throw new AppException(ErrorCode.ORDER_PAYMENT_EXPIRED);
+        }
+
+        if (order.getShippingAddress() == null || order.getShippingAddress().isEmpty()) {
+            log.warn("Order ID {} has not updated shipping information!", orderId);
+            throw new AppException(ErrorCode.SHIPPING_INFO_REQUIRED);
         }
 
         CreatePaymentCommand command = new CreatePaymentCommand(

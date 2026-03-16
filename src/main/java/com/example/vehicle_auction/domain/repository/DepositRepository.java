@@ -19,4 +19,6 @@ public interface DepositRepository {
     Optional<DepositModel> findByAuctionIdAndAccountIdAndStatus(UUID auctionId, UUID accountId, DepositStatus status);
 
     DepositModel save(DepositModel depositModel);
+
+    Optional<DepositModel> findByAuctionIdAndAccountId(UUID auctionId, UUID accountId);
 }

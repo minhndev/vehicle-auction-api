@@ -3,12 +3,15 @@ package com.example.vehicle_auction.presentation.controller;
 import com.example.vehicle_auction.application.dto.order.OrderResponse;
 import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
 import com.example.vehicle_auction.application.usecase.order.GetOrderUseCase;
+import com.example.vehicle_auction.application.usecase.order.GetUserOrdersUseCase;
 import com.example.vehicle_auction.application.usecase.order.PayOrderUseCase;
 import com.example.vehicle_auction.infrastructure.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +27,7 @@ public class OrderController {
 
     private final GetOrderUseCase getOrderUseCase;
     private final PayOrderUseCase payOrderUseCase;
+    private final GetUserOrdersUseCase getUserOrdersUseCase;
 
     @Operation(summary = "Get order details", description = "Lấy thông tin chi tiết đơn hàng dành cho người thắng cuộc")
     @GetMapping("/{id}")
@@ -46,12 +50,23 @@ public class OrderController {
     ) {
         String ipAddress = getClientIpAddress(httpServletRequest);
 
-        // Gọi sang VNPay tương tự như lúc đóng cọc
          PaymentResponse response = payOrderUseCase.execute(id, userDetails.getAccount().getId(), ipAddress);
          return ResponseEntity.ok(response);
     }
 
-    // Hàm Helper lấy IP (Tái sử dụng từ DepositController)
+    @Operation(summary = "Get my orders", description = "Lấy danh sách tất cả đơn hàng của người dùng hiện tại")
+    @GetMapping("/my-orders")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Page<OrderResponse>> getMyOrders(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            Pageable pageable
+    ) {
+
+        Page<OrderResponse> response = getUserOrdersUseCase.execute(userDetails.getAccount().getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    // Hàm Helper lấy IP
     private String getClientIpAddress(HttpServletRequest request) {
         String xForwardedForHeader = request.getHeader("X-Forwarded-For");
         if (xForwardedForHeader == null || xForwardedForHeader.isEmpty()) {

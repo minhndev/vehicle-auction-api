@@ -21,4 +21,9 @@ public class OrderModel extends AuditModel {
     private OrderStatus status;
     private LocalDateTime paymentDeadDate;
 
+    private String recipientName;
+    private String recipientPhone;
+    private String shippingAddress;
+    private String shippingNote;
+
 }

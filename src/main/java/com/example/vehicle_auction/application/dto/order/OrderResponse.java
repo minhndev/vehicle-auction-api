@@ -14,6 +14,11 @@ public record OrderResponse(
         BigDecimal depositAmount,
         BigDecimal remainingAmount,
         OrderStatus status,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+
+        String recipientName,
+        String recipientPhone,
+        String shippingAddress,
+        String shippingNote
 ) {
 }

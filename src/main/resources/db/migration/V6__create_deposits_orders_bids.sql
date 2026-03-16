@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS deposits (
     amount NUMERIC(19,2) NOT NULL,
     status VARCHAR(255) NOT NULL,
     payment_method VARCHAR(50),
+    payment_date VARCHAR(100),
+    gateway_transaction_no VARCHAR(255),
     transaction_reference VARCHAR(100),
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,

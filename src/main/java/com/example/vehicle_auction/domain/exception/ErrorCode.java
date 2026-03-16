@@ -60,6 +60,8 @@ public enum ErrorCode {
     ORDER_NOT_FOUND("ORD_001", "order.not.found"),
     ORDER_CANNOT_BE_PAID("ORD_002", "order.cannot.be.paid"),
     ORDER_PAYMENT_EXPIRED("ORD_003", "order.payment.expired"),
+    ORDER_CANNOT_BE_UPDATED("ORD_004", "order.cannot.be.updated"),
+    SHIPPING_INFO_REQUIRED("ORD_005", "order.shipping_info.required"),
 
 
     // File

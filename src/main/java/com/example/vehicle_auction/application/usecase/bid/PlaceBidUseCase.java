@@ -3,6 +3,7 @@ package com.example.vehicle_auction.application.usecase.bid;
 import com.example.vehicle_auction.application.dto.bid.BidRequest;
 import com.example.vehicle_auction.application.dto.bid.BidResponse;
 import com.example.vehicle_auction.application.mapper.BidMapper;
+import com.example.vehicle_auction.domain.event.BidPlacedEvent;
 import com.example.vehicle_auction.domain.event.OutbidEvent;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
@@ -54,6 +55,8 @@ public class PlaceBidUseCase {
         if (previousWinnerId != null && !previousWinnerId.equals(bidderId)){
             eventPublisher.publishEvent(new OutbidEvent(previousWinnerId, auctionId, request.amount()));
         }
+
+        eventPublisher.publishEvent(new BidPlacedEvent(auctionId, savedBidModel.getAmount(), bidderId));
 
         boolean isWinning = savedBidModel.getBidderId().equals(auctionModel.getWinnerId());
 

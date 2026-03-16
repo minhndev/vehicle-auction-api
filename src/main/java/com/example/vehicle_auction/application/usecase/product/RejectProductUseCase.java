@@ -24,7 +24,7 @@ public class RejectProductUseCase {
 
     @Transactional
     public ProductResponse execute(UUID productId) {
-        log.info("Starting to approve product with ID: {}", productId);
+        log.info("Starting to reject product with ID: {}", productId);
 
         // Find the product by ID
         ProductModel product = productRepository.findByIdAndDeletedFalse(productId)

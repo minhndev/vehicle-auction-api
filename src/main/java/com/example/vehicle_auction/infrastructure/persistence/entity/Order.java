@@ -36,4 +36,16 @@ public class Order extends AuditEntity {
 
     @Column(name = "payment_deadline")
     private LocalDateTime paymentDeadDate;
+
+    @Column(name = "recipient_name")
+    private String recipientName;
+
+    @Column(name = "recipient_phone")
+    private String recipientPhone;
+
+    @Column(name = "shipping_address")
+    private String shippingAddress;
+
+    @Column(name = "shipping_note")
+    private String shippingNote;
 }

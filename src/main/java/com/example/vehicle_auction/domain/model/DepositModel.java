@@ -19,6 +19,8 @@ public class DepositModel extends AuditModel {
     private BigDecimal amount;
     private DepositStatus status;
     private String paymentMethod;
+    private String paymentDate;
+    private String gatewayTransactionNo;
     private String transactionReference;
 
 }

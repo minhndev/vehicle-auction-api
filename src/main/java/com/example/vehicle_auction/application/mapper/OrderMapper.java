@@ -12,4 +12,5 @@ public interface OrderMapper {
     @Mapping(target = "winningPrice", source = "model.totalAmount")
     @Mapping(target = "depositAmount", expression = "java(model.getTotalAmount().subtract(model.getRemainingAmount()))")
     OrderResponse toResponse(OrderModel model, String productName);
+
 }

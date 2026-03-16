@@ -37,6 +37,8 @@ public class ProcessPaymentIpnUseCase {
 
         String txnRef = vnpayParams.get("vnp_TxnRef");
         String responseCode = vnpayParams.get("vnp_ResponseCode");
+        String vnpPayDate = vnpayParams.get("vnp_PayDate");
+        String vnpTransactionNo = vnpayParams.get("vnp_TransactionNo");
 
         Optional<TransactionModel> txOptional = transactionRepositoryPort.findByGatewayReference(txnRef);
         if (txOptional.isEmpty()) {
@@ -66,6 +68,8 @@ public class ProcessPaymentIpnUseCase {
 
                 deposit.setStatus(DepositStatus.PAID);
                 deposit.setTransactionReference(txnRef);
+                deposit.setPaymentDate(vnpPayDate);
+                deposit.setGatewayTransactionNo(vnpTransactionNo);
                 depositRepository.save(deposit);
 
             } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {

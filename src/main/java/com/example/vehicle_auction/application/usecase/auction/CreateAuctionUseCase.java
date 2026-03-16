@@ -54,13 +54,15 @@ public class CreateAuctionUseCase {
         auction.setCurrentPrice(request.startPrice());
         auction.setStatus(AuctionStatus.UPCOMING);
 
+
         product.setStatus(ProductStatus.IN_AUCTION);
+        String productName = product.getName();
 
         productRepository.save(product);
 
         AuctionModel savedAuction = auctionRepository.save(auction);
         log.info("Successfully created auction with ID: {} for product ID: {}", savedAuction.getId(), product.getId());
 
-        return auctionMapper.toResponse(savedAuction);
+        return auctionMapper.toResponse(auction, productName);
     }
 }

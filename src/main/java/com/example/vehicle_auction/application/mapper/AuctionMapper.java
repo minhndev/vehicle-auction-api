@@ -17,5 +17,7 @@ public interface AuctionMapper {
     @Mapping(target = "winnerId", ignore = true)
     AuctionModel toDomain(AuctionRequest request);
 
-    AuctionResponse toResponse(AuctionModel auctionModel);
+
+    @Mapping(source = "productName", target = "productName")
+    AuctionResponse toResponse(AuctionModel auctionModel, String productName);
 }

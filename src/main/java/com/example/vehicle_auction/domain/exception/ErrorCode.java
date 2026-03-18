@@ -27,6 +27,8 @@ public enum ErrorCode {
     ACCOUNT_INVALID_VERIFICATION_TOKEN("ACCOUNT_400", "account.invalid.verification_token"),
     ACCOUNT_ALREADY_VERIFIED("ACCOUNT_400", "account.already.verified"),
 
+    USER_NOT_FOUND("USER_404", "user.not.found"),
+
     WATCHLIST_ALREADY_EXISTS("WATCHLIST_400", "watchlist.already.exists"),
 
     // Category and Product errors

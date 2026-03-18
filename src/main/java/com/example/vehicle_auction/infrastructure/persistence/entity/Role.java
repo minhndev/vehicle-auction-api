@@ -28,7 +28,7 @@ public class Role extends FullEntity {
     @Column(name = "is_active", nullable = false)
     private boolean active = true;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "role_permissions",
             joinColumns = @JoinColumn(name = "role_id"),

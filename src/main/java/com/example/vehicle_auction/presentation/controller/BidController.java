@@ -43,4 +43,6 @@ public class BidController {
     public ResponseEntity<List<BidResponse>> getAllBids(@PathVariable UUID auctionId) {
         return ResponseEntity.ok(getBidUseCase.getTop10Bids(auctionId));
     }
+
+
 }

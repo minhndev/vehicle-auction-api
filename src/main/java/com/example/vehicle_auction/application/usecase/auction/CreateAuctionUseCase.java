@@ -63,6 +63,6 @@ public class CreateAuctionUseCase {
         AuctionModel savedAuction = auctionRepository.save(auction);
         log.info("Successfully created auction with ID: {} for product ID: {}", savedAuction.getId(), product.getId());
 
-        return auctionMapper.toResponse(auction, productName);
+        return auctionMapper.toResponse(savedAuction, productName);
     }
 }

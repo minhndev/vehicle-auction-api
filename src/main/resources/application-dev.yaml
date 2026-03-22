@@ -46,8 +46,8 @@ aws:
     endpoint: http://localhost:9000
     bucket-name: vehicle-auction-bucket
     region: ap-southeast-1
-    access-key: minioadmin
-    secret-key: minioadmin
+    access-key: ${MINIO_ACCESS_SECRET}
+    secret-key: ${MINIO_REFRESH_SECRET}
 
 
 app:

@@ -73,4 +73,11 @@ public class UserController {
             @RequestBody @Valid UpdateUserStatusRequest request) {
         return ResponseEntity.ok(getUserUseCase.updateStatus(id, request));
     }
+
+    @Operation(summary = "Grant SELLER role to user (Admin)")
+    @PatchMapping("/{id}/grant-seller")
+    @PreAuthorize("hasAuthority('USER_GRANT_SELLER')")
+    public ResponseEntity<UserManagementResponse> grantSellerRole(@PathVariable UUID id) {
+        return ResponseEntity.ok(getUserUseCase.grantSellerRole(id));
+    }
 }

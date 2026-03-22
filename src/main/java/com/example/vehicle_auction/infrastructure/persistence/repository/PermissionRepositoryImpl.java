@@ -6,8 +6,11 @@ import com.example.vehicle_auction.infrastructure.persistence.entity.Permission;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.PermissionEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaPermissionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +24,20 @@ public class PermissionRepositoryImpl implements PermissionRepository {
     public PermissionModel save(PermissionModel permissionModel) {
         Permission permissionEntity = permissionEntityMapper.toEntity(permissionModel);
         return permissionEntityMapper.toDomain(jpaPermissionRepository.save(permissionEntity));
+    }
+
+    @Override
+    public Page<PermissionModel> findAll(Pageable pageable) {
+        return jpaPermissionRepository.findAll(pageable)
+                .map(permissionEntityMapper::toDomain);
+    }
+
+    @Override
+    public List<PermissionModel> findAllById(List<UUID> ids) {
+        return jpaPermissionRepository.findAllById(ids)
+                .stream()
+                .map(permissionEntityMapper::toDomain)
+                .toList();
     }
 
     @Override

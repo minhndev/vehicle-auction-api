@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,5 +23,5 @@ public record RoleRequest(
 
         @Schema(description = "List of permission UUIDs to be assigned to this role",
                 example = "[\"550e8400-e29b-41d4-a716-446655440000\", \"670e8400-e29b-41d4-a716-446655440001\"]")
-        Set<UUID> permissionIds) {
+        List<UUID> permissionIds) {
 }

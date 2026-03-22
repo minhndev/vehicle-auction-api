@@ -50,7 +50,7 @@ public class NotificationUseCase {
         NotificationModel notification = notificationRepository.findById(notificationId.toString())
                 .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        if (!notification.getAccountId().equals(myAccountId)) {
+        if (!notification.getAccountId().equals(myAccountId.toString())) {
             throw new AppException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
 

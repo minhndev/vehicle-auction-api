@@ -2,6 +2,7 @@ package com.example.vehicle_auction.application.usecase.auth;
 
 import com.example.vehicle_auction.application.dto.auth.AuthResponse;
 import com.example.vehicle_auction.application.dto.auth.LoginRequest;
+import com.example.vehicle_auction.application.dto.auth.ResetPasswordRequest;
 import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
 import com.example.vehicle_auction.application.usecase.mail.SendRegistrationEmailUseCase;
 import com.example.vehicle_auction.domain.enums.Gender;
@@ -14,6 +15,7 @@ import com.example.vehicle_auction.domain.repository.RoleRepository;
 import com.example.vehicle_auction.domain.repository.UserRepository;
 import com.example.vehicle_auction.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -51,8 +54,11 @@ public class AuthUseCaseTest {
     @InjectMocks
     private AuthUseCase authUseCase;
 
+    @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(authUseCase, "apiBaseUrl", "http://localhost:8080");
+        ReflectionTestUtils.setField(authUseCase, "frontendUrl", "http://localhost:5173");
+        ReflectionTestUtils.setField(authUseCase, "resetTokenExpirationMinutes", 30L);
     }
 
     @Test
@@ -79,6 +85,7 @@ public class AuthUseCaseTest {
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.EMAIL_ALREADY_EXISTS);
     }
 
+    @Test
     void should_SuccessfullyRegister_When_ValidRequest() {
         RegisterRequest req = new RegisterRequest(
                 "test@test.com", "pass123", "pass123", "John", "Doe",
@@ -141,5 +148,38 @@ public class AuthUseCaseTest {
 
         assertThat(res).isNotNull();
         assertThat(res.accessToken()).isEqualTo("access-token");
+    }
+
+    @Test
+    void should_ThrowException_When_ResetTokenIsExpired() {
+        ResetPasswordRequest req = new ResetPasswordRequest("token-123", "newPass", "newPass");
+
+        AccountModel account = new AccountModel();
+        account.setResetPasswordToken("token-123");
+        account.setResetPasswordTokenExpiry(LocalDateTime.now().minusMinutes(1));
+
+        when(accountRepository.findByResetPasswordToken("token-123")).thenReturn(Optional.of(account));
+
+        AppException exception = assertThrows(AppException.class, () -> authUseCase.resetPassword(req));
+        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ACCOUNT_RESET_TOKEN_EXPIRED);
+    }
+
+    @Test
+    void should_ResetPasswordSuccessfully_When_ResetTokenIsValid() {
+        ResetPasswordRequest req = new ResetPasswordRequest("token-123", "newPass", "newPass");
+
+        AccountModel account = new AccountModel();
+        account.setResetPasswordToken("token-123");
+        account.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(30));
+
+        when(accountRepository.findByResetPasswordToken("token-123")).thenReturn(Optional.of(account));
+        when(passwordEncoder.encode("newPass")).thenReturn("encoded-new-pass");
+
+        authUseCase.resetPassword(req);
+
+        assertThat(account.getPassword()).isEqualTo("encoded-new-pass");
+        assertThat(account.getResetPasswordToken()).isNull();
+        assertThat(account.getResetPasswordTokenExpiry()).isNull();
+        verify(accountRepository).save(account);
     }
 }

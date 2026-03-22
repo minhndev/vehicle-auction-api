@@ -6,6 +6,7 @@ import com.example.vehicle_auction.application.dto.auction.AuctionResponse;
 import com.example.vehicle_auction.application.dto.auction.CancelAuctionRequest;
 import com.example.vehicle_auction.application.usecase.auction.CancelAuctionUseCase;
 import com.example.vehicle_auction.application.usecase.auction.CreateAuctionUseCase;
+import com.example.vehicle_auction.application.usecase.auction.GetAuctionDetailUseCase;
 import com.example.vehicle_auction.application.usecase.auction.SearchAuctionsUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,6 +17,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,6 +29,7 @@ public class AuctionController {
     private final CreateAuctionUseCase createAuctionUseCase;
     private final SearchAuctionsUseCase searchAuctionsUseCase;
     private final CancelAuctionUseCase cancelAuctionUseCase;
+    private final GetAuctionDetailUseCase getAuctionDetailUseCase;
 
     @Operation(
             summary = "Create a new auction session",
@@ -37,7 +40,7 @@ public class AuctionController {
     @ApiResponse(responseCode = "400", description = "Invalid time, overlapping auctions, or invalid product status")
     @ApiResponse(responseCode = "404", description = "Product not found")
     @PostMapping
-//    @PreAuthorize("hasAuthority('AUCTION_CREATE')")
+    @PreAuthorize("hasAuthority('AUCTION_CREATE')")
     public ResponseEntity<AuctionResponse> createAuction(@RequestBody @Valid AuctionRequest request) {
         return ResponseEntity.ok(createAuctionUseCase.execute(request));
     }
@@ -58,6 +61,14 @@ public class AuctionController {
         return ResponseEntity.ok(pageResult);
     }
 
+    @Operation(summary = "Get auction detail")
+    @ApiResponse(responseCode = "200", description = "Auction detail retrieved successfully")
+    @ApiResponse(responseCode = "404", description = "Auction not found")
+    @GetMapping("/{id}")
+    public ResponseEntity<AuctionResponse> getAuctionDetail(@PathVariable("id") java.util.UUID id) {
+        return ResponseEntity.ok(getAuctionDetailUseCase.execute(id));
+    }
+
     @Operation(
             summary = "Cancel an auction session",
             description = "Allows Admin to cancel an UPCOMING or ACTIVE auction. This action will automatically trigger deposit refunds for all participating users."
@@ -66,7 +77,7 @@ public class AuctionController {
     @ApiResponse(responseCode = "400", description = "Auction cannot be cancelled in its current status")
     @ApiResponse(responseCode = "404", description = "Auction not found")
     @PostMapping("/{id}/cancel")
-    // @PreAuthorize("hasAuthority('AUCTION_CANCEL')")
+    @PreAuthorize("hasAuthority('AUCTION_CANCEL')")
     public ResponseEntity<Void> cancelAuction(
             @PathVariable("id") java.util.UUID id,
             @RequestBody @Valid CancelAuctionRequest request) {

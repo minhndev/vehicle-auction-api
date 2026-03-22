@@ -7,6 +7,8 @@ import com.example.vehicle_auction.infrastructure.persistence.entity.Transaction
 import com.example.vehicle_auction.infrastructure.persistence.mapper.TransactionEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaTransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -35,6 +37,12 @@ public class TransactionRepositoryImpl implements TransactionRepositoryPort {
     @Override
     public Optional<TransactionModel> findByGatewayReference(String gatewayReference) {
         return jpaTransactionRepository.findByGatewayReference(gatewayReference)
+                .map(transactionEntityMapper::toDomain);
+    }
+
+    @Override
+    public Page<TransactionModel> findByUserId(UUID userId, Pageable pageable) {
+        return jpaTransactionRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable)
                 .map(transactionEntityMapper::toDomain);
     }
 

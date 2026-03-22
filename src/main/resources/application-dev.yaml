@@ -54,6 +54,8 @@ app:
   admin:
     email: ${ADMIN_EMAIL}
     password: ${ADMIN_PASSWORD}
+  auth:
+    reset-token-expiration-minutes: ${RESET_TOKEN_EXPIRATION_MINUTES:30}
   api:
     base-url: ${API_BASE_URL:http://localhost:8080}
   cors:

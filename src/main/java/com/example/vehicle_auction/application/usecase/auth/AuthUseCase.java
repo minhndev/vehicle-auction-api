@@ -2,6 +2,7 @@ package com.example.vehicle_auction.application.usecase.auth;
 
 import com.example.vehicle_auction.application.dto.auth.AuthResponse;
 import com.example.vehicle_auction.application.dto.auth.LoginRequest;
+import com.example.vehicle_auction.application.dto.auth.ResetPasswordRequest;
 import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
 import com.example.vehicle_auction.application.usecase.mail.SendRegistrationEmailUseCase;
 import com.example.vehicle_auction.domain.exception.AppException;
@@ -21,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -37,6 +39,12 @@ public class AuthUseCase {
 
     @Value("${app.api.base-url}")
     private String apiBaseUrl;
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
+
+    @Value("${app.auth.reset-token-expiration-minutes:30}")
+    private long resetTokenExpirationMinutes;
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
@@ -118,6 +126,45 @@ public class AuthUseCase {
         }
 
         throw new AppException(ErrorCode.REFRESH_UNAUTHORIZED);
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        accountRepository.findByEmail(email).ifPresent(account -> {
+            String token = UUID.randomUUID().toString();
+            account.setResetPasswordToken(token);
+            account.setResetPasswordTokenExpiry(LocalDateTime.now().plusMinutes(resetTokenExpirationMinutes));
+            accountRepository.save(account);
+
+            String resetLink = frontendUrl + "/reset-password?token=" + token;
+            String subject = "Reset your Vehicle Auction password";
+            String body = "We received a password reset request for your account.\n\n" +
+                    "Use this link to reset your password:\n" +
+                    resetLink + "\n\n" +
+                    "If you did not request this, you can ignore this email.";
+
+            sendRegistrationEmailUseCase.execute(account.getEmail(), account.getEmail(), subject, body);
+        });
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest req) {
+        if (!req.newPassword().equals(req.confirmPassword())) {
+            throw new AppException(ErrorCode.CONFIRM_PASSWORD_INVALID);
+        }
+
+        AccountModel account = accountRepository.findByResetPasswordToken(req.token())
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_INVALID_RESET_TOKEN));
+
+        if (account.getResetPasswordTokenExpiry() == null
+                || LocalDateTime.now().isAfter(account.getResetPasswordTokenExpiry())) {
+            throw new AppException(ErrorCode.ACCOUNT_RESET_TOKEN_EXPIRED);
+        }
+
+        account.setPassword(passwordEncoder.encode(req.newPassword()));
+        account.setResetPasswordToken(null);
+        account.setResetPasswordTokenExpiry(null);
+        accountRepository.save(account);
     }
 
     @Transactional

@@ -32,7 +32,7 @@ public class CategoryController {
 
     @Operation(summary = "Create a new category", description = "Admin only. Auto-generates a unique URL slug.")
     @PostMapping
-//    @PreAuthorize("hasAuthority('CATEGORY_CREATE')")
+    @PreAuthorize("hasAuthority('CATEGORY_CREATE')")
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody @Valid CategoryRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(createCategoryUseCase.execute(request));
     }
@@ -51,7 +51,7 @@ public class CategoryController {
 
     @Operation(summary = "Update category details")
     @PutMapping("/{id}")
-//    @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
+    @PreAuthorize("hasAuthority('CATEGORY_UPDATE')")
     public ResponseEntity<CategoryResponse> updateCategory(
             @PathVariable UUID id,
             @RequestBody @Valid CategoryRequest request) {
@@ -61,7 +61,7 @@ public class CategoryController {
     @Operation(summary = "Soft delete a category")
     @ApiResponse(responseCode = "204", description = "Category deleted successfully")
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAuthority('CATEGORY_DELETE')")
+    @PreAuthorize("hasAuthority('CATEGORY_DELETE')")
     public ResponseEntity<Void> deleteCategory(@PathVariable UUID id) {
         deleteCategoryUseCase.execute(id);
         return ResponseEntity.noContent().build();
@@ -70,7 +70,7 @@ public class CategoryController {
     @Operation(summary = "Restore a category")
     @ApiResponse(responseCode = "204", description = "Category Restored successfully")
     @PatchMapping("/{id}/restore")
-//    @PreAuthorize("hasAuthority('CATEGORY_RESTORE')")
+    @PreAuthorize("hasAuthority('CATEGORY_RESTORE')")
     public ResponseEntity<Void> restoreCategory(@PathVariable UUID id) {
         restoreCategoryUseCase.execute(id);
         return ResponseEntity.noContent().build();

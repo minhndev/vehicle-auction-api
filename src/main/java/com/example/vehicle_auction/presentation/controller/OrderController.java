@@ -1,7 +1,9 @@
 package com.example.vehicle_auction.presentation.controller;
 
+import com.example.vehicle_auction.application.dto.order.CheckoutRequest;
 import com.example.vehicle_auction.application.dto.order.OrderResponse;
 import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
+import com.example.vehicle_auction.application.usecase.order.CheckoutOrderUseCase;
 import com.example.vehicle_auction.application.usecase.order.GetOrderUseCase;
 import com.example.vehicle_auction.application.usecase.order.GetUserOrdersUseCase;
 import com.example.vehicle_auction.application.usecase.order.PayOrderUseCase;
@@ -9,6 +11,7 @@ import com.example.vehicle_auction.infrastructure.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ import java.util.UUID;
 public class OrderController {
 
     private final GetOrderUseCase getOrderUseCase;
+    private final CheckoutOrderUseCase checkoutOrderUseCase;
     private final PayOrderUseCase payOrderUseCase;
     private final GetUserOrdersUseCase getUserOrdersUseCase;
 
@@ -63,6 +67,18 @@ public class OrderController {
     ) {
 
         Page<OrderResponse> response = getUserOrdersUseCase.execute(userDetails.getAccount().getId(), pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Update checkout shipping info", description = "Cập nhật thông tin nhận hàng trước khi thanh toán")
+    @PutMapping("/{id}/checkout")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<OrderResponse> checkoutOrder(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody @Valid CheckoutRequest request
+    ) {
+        OrderResponse response = checkoutOrderUseCase.execute(id, userDetails.getAccount().getId(), request);
         return ResponseEntity.ok(response);
     }
 

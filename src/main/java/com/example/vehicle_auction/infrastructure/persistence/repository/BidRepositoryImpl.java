@@ -6,6 +6,8 @@ import com.example.vehicle_auction.infrastructure.persistence.entity.Bid;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.BidEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaBidRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -32,5 +34,11 @@ public class BidRepositoryImpl implements BidRepository {
                 .stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<BidModel> findByBidderIdOrderByCreatedAtDesc(UUID bidderId, Pageable pageable) {
+        return jpaBidRepository.findByBidderIdOrderByCreatedAtDesc(bidderId, pageable)
+                .map(mapper::toDomain);
     }
 }

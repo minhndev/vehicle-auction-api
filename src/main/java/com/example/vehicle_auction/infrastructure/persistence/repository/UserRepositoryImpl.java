@@ -8,6 +8,8 @@ import com.example.vehicle_auction.infrastructure.persistence.entity.User;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -41,6 +43,18 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<UserModel> findByAccountId(UUID accountId) {
         return jpaUserRepository.findByAccountId(accountId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserModel> findById(UUID userId) {
+        return jpaUserRepository.findDetailById(userId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
+    public Page<UserModel> findAll(Pageable pageable, String keyword, Boolean active, Boolean verified, Boolean deleted) {
+        return jpaUserRepository.searchUsers(pageable, keyword, active, verified, deleted)
                 .map(userEntityMapper::toDomain);
     }
 }

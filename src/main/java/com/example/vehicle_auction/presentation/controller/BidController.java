@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class BidController {
     private final GetBidHistoryUseCase getBidUseCase;
 
     @PostMapping
-//    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<BidResponse> placeBid(
             @PathVariable UUID auctionId,
             @Valid @RequestBody BidRequest request,
@@ -43,4 +44,6 @@ public class BidController {
     public ResponseEntity<List<BidResponse>> getAllBids(@PathVariable UUID auctionId) {
         return ResponseEntity.ok(getBidUseCase.getTop10Bids(auctionId));
     }
+
+
 }

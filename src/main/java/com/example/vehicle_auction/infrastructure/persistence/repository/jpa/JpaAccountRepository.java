@@ -17,4 +17,6 @@ public interface JpaAccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findBySystemTrue();
 
     Optional<Account> findByVerificationToken(String verificationToken);
+
+    Optional<Account> findByResetPasswordToken(String resetPasswordToken);
 }

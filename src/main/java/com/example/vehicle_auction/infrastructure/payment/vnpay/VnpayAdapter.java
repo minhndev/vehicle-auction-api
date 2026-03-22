@@ -2,9 +2,17 @@ package com.example.vehicle_auction.infrastructure.payment.vnpay;
 
 import com.example.vehicle_auction.application.dto.payment.PaymentRequest;
 import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
+import com.example.vehicle_auction.application.dto.payment.RefundRequest;
 import com.example.vehicle_auction.application.port.out.PaymentGatewayPort;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -13,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Slf4j
 @Component
 public class VnpayAdapter implements PaymentGatewayPort {
     @Value("${vnpay.tmn-code}")
@@ -109,6 +118,95 @@ public class VnpayAdapter implements PaymentGatewayPort {
         return signValue.equals(vnp_SecureHash);
     }
 
+    // Mock refund method
+    @Override
+    public boolean refund(RefundRequest request) {
+
+        if (request.transactionDate() == null || request.transactionDate().isEmpty()) {
+            log.error("❌ CRITICAL ERROR: transactionDate is NULL! Please test with a NEW deposit.");
+            return false;
+        }
+        String vnp_RequestId = UUID.randomUUID().toString();
+        String vnp_Version = "2.1.0";
+        String vnp_Command = "refund";
+        String vnp_TmnCode = this.vnpTmnCode;
+        String vnp_TransactionType = request.transactionType();
+        String vnp_TxnRef = request.transactionReference();
+        String vnp_Amount = String.valueOf(request.amount());
+        String vnp_TransactionNo = (request.transactionNo() != null && !request.transactionNo().isEmpty())
+                ? request.transactionNo()
+                : "0";
+        String vnp_TransactionDate = request.transactionDate();
+        String vnp_CreateBy = request.createBy();
+        String vnp_CreateDate = request.createDate();
+        String vnp_IpAddr = "8.8.8.8"; //127.0.0.1
+        String vnp_OrderInfo = "Refund transaction " + vnp_TxnRef;
+
+        String hashData = String.join("|",
+                vnp_RequestId, vnp_Version, vnp_Command, vnp_TmnCode,
+                vnp_TransactionType, vnp_TxnRef, vnp_Amount, vnp_TransactionNo,
+                vnp_TransactionDate, vnp_CreateBy, vnp_CreateDate,
+                vnp_IpAddr, vnp_OrderInfo
+        );
+
+        String vnp_SecureHash = hmacSHA512(this.vnpHashSecret, hashData);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("vnp_RequestId", vnp_RequestId);
+        requestBody.put("vnp_Version", vnp_Version);
+        requestBody.put("vnp_Command", vnp_Command);
+        requestBody.put("vnp_TmnCode", vnp_TmnCode);
+        requestBody.put("vnp_TransactionType", vnp_TransactionType);
+        requestBody.put("vnp_TxnRef", vnp_TxnRef);
+        requestBody.put("vnp_Amount", request.amount());
+
+        long transNo = (vnp_TransactionNo != null && !vnp_TransactionNo.isEmpty())
+                ? Long.parseLong(vnp_TransactionNo)
+                : 0L;
+
+        requestBody.put("vnp_TransactionNo", transNo);
+        requestBody.put("vnp_TransactionDate", vnp_TransactionDate);
+        requestBody.put("vnp_CreateBy", vnp_CreateBy);
+        requestBody.put("vnp_CreateDate", vnp_CreateDate);
+        requestBody.put("vnp_IpAddr", vnp_IpAddr);
+        requestBody.put("vnp_OrderInfo", vnp_OrderInfo);
+        requestBody.put("vnp_SecureHash", vnp_SecureHash);
+
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
+            log.info("VNPAY REFUND REQUEST PAYLOAD: {}", mapper.writeValueAsString(requestBody));
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+            String vnpapi = "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction";
+
+            log.info("Sending refund request to VNPAY...");
+
+            String responseBody = restTemplate.postForObject(vnpapi, entity, String.class);
+            log.info("OFFICIAL RESPONSE FROM VNPAY: {}", responseBody);
+
+            JsonNode jsonNode = mapper.readTree(responseBody);
+            String responseCode = jsonNode.get("vnp_ResponseCode").asText();
+
+            if ("00".equals(responseCode)) {
+                log.info("✅ REFUND SUCCESSFUL ON VNPAY SYSTEM!");
+                return true;
+            } else {
+                log.error("❌ VNPAY REJECTED REFUND. ERROR CODE: {}, MESSAGE: {}",
+                        responseCode, jsonNode.get("vnp_Message").asText());
+                return false;
+            }
+
+        } catch (Exception e) {
+            log.error("Network error or unable to connect to VNPAY API: ", e);
+            return false;
+        }
+    }
+
     private String hmacSHA512(String key, String data) {
         try {
             Mac hmac512 = Mac.getInstance("HmacSHA512");
@@ -124,4 +222,6 @@ public class VnpayAdapter implements PaymentGatewayPort {
             throw new RuntimeException("Failed to generate HMAC-SHA512 for VNPay", ex);
         }
     }
+
+
 }

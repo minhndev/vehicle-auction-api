@@ -22,6 +22,5 @@ public interface AuctionRepository {
     List<AuctionModel> findAuctionsToOpen(AuctionStatus status, LocalDateTime now);
     Page<AuctionModel> findAuctionsToClose(AuctionStatus status, LocalDateTime now, Pageable pageable);
 
-    // Đẩy việc xử lý Specification (JPA) xuống Adapter, Use Case chỉ truyền DTO
     Page<AuctionModel> findAll(AuctionFilterRequest request, Pageable pageable);
 }

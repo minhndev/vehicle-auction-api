@@ -9,6 +9,7 @@ import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.Jpa
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,6 +30,14 @@ public class DepositRepositoryImpl implements DepositRepository {
     }
 
     @Override
+    public List<DepositModel> findByAuctionIdAndStatus(UUID auctionId, DepositStatus status) {
+        return jpaDepositRepository.findByAuctionIdAndStatus(auctionId, status)
+                .stream()
+                .map(depositEntityMapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public Optional<DepositModel> findById(UUID id) {
         return jpaDepositRepository.findById(id).map(depositEntityMapper::toDomain);
     }
@@ -36,6 +45,12 @@ public class DepositRepositoryImpl implements DepositRepository {
     @Override
     public Optional<DepositModel> findByTransactionReference(String transactionReference) {
         return jpaDepositRepository.findByTransactionReference(transactionReference)
+                .map(depositEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<DepositModel> findByAuctionIdAndAccountIdAndStatus(UUID auctionId, UUID accountId, DepositStatus status) {
+        return jpaDepositRepository.findByAuctionIdAndAccountIdAndStatus(auctionId, accountId, status)
                 .map(depositEntityMapper::toDomain);
     }
 
@@ -49,5 +64,11 @@ public class DepositRepositoryImpl implements DepositRepository {
             entity = depositEntityMapper.toEntity(depositModel);
         }
         return depositEntityMapper.toDomain(jpaDepositRepository.save(entity));
+    }
+
+    @Override
+    public Optional<DepositModel> findByAuctionIdAndAccountId(UUID auctionId, UUID accountId) {
+        return jpaDepositRepository.findByAuctionIdAndAccountId(auctionId, accountId)
+                .map(depositEntityMapper::toDomain);
     }
 }

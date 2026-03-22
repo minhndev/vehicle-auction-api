@@ -41,10 +41,21 @@ spring:
           timeout: 5000
           writetimeout: 5000
 
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    bucket-name: vehicle-auction-bucket
+    region: ap-southeast-1
+    access-key: minioadmin
+    secret-key: minioadmin
+
+
 app:
   admin:
     email: ${ADMIN_EMAIL}
     password: ${ADMIN_PASSWORD}
+  auth:
+    reset-token-expiration-minutes: ${RESET_TOKEN_EXPIRATION_MINUTES:30}
   api:
     base-url: ${API_BASE_URL:http://localhost:8080}
   cors:

@@ -6,16 +6,18 @@ import com.example.vehicle_auction.application.dto.payment.PaymentCreateRequest;
 import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
 import com.example.vehicle_auction.application.usecase.payment.CreatePaymentUseCase;
 import com.example.vehicle_auction.application.usecase.payment.ProcessPaymentIpnUseCase;
+import com.example.vehicle_auction.infrastructure.security.CustomUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/payments")
@@ -31,16 +33,16 @@ public class PaymentController {
      * Endpoint for the frontend to request a VNPay checkout URL.
      */
     @PostMapping("/create")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PaymentResponse> createPayment(
             @RequestBody PaymentCreateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             HttpServletRequest httpRequest
     ) {
         String ipAddress = getClientIpAddress(httpRequest);
 
-        UUID userId = UUID.randomUUID();
-
         CreatePaymentCommand command = new CreatePaymentCommand(
-                userId,
+                userDetails.getAccount().getId(),
                 request.referenceId(),
                 request.targetType(),
                 request.amount(),

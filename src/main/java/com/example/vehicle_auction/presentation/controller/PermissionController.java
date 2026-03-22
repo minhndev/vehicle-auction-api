@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/permissions")
 @RequiredArgsConstructor
 @Tag(name = "Permission Management", description = "APIs for managing user permissions")
 public class PermissionController {

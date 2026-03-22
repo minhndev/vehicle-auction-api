@@ -30,6 +30,12 @@ public class Deposit extends AuditEntity {
     @Column(nullable = false)
     private DepositStatus status;
 
+    @Column(name = "payment_date")
+    private String paymentDate;
+
+    @Column(name = "gateway_transaction_no")
+    private String gatewayTransactionNo;
+
     @Column(name = "payment_method", length = 50)
     private String paymentMethod;
 

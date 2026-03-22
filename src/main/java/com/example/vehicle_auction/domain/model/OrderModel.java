@@ -1,9 +1,10 @@
 package com.example.vehicle_auction.domain.model;
 
 import com.example.vehicle_auction.domain.enums.OrderStatus;
-import lombok.Builder;
+import com.example.vehicle_auction.domain.model.base.AuditModel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,9 +12,8 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Builder
-public class OrderModel {
-    private UUID id;
+@SuperBuilder
+public class OrderModel extends AuditModel {
     private UUID auctionId;
     private UUID winnerId;
     private BigDecimal totalAmount;
@@ -21,6 +21,9 @@ public class OrderModel {
     private OrderStatus status;
     private LocalDateTime paymentDeadDate;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String recipientName;
+    private String recipientPhone;
+    private String shippingAddress;
+    private String shippingNote;
+
 }

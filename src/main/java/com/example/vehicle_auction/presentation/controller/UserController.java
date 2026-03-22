@@ -1,15 +1,26 @@
 package com.example.vehicle_auction.presentation.controller;
 
+import com.example.vehicle_auction.application.dto.user.UpdateUserStatusRequest;
+import com.example.vehicle_auction.application.dto.user.UserManagementResponse;
 import com.example.vehicle_auction.application.dto.user.UserResponse;
 import com.example.vehicle_auction.application.usecase.user.GetUserUseCase;
 import com.example.vehicle_auction.infrastructure.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
@@ -17,6 +28,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
+@Tag(name = "User Management", description = "APIs for current profile and admin user management")
 public class UserController {
     private final GetUserUseCase getUserUseCase;
 
@@ -32,5 +44,33 @@ public class UserController {
 
         UserResponse response = getUserUseCase.getUserByAccount(accountId);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Get paginated users (Admin)")
+    @GetMapping
+    @PreAuthorize("hasAuthority('USER_VIEW')")
+    public ResponseEntity<Page<UserManagementResponse>> getUsers(
+            @ParameterObject Pageable pageable,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) Boolean verified,
+            @RequestParam(required = false) Boolean deleted) {
+        return ResponseEntity.ok(getUserUseCase.getAllUsers(pageable, keyword, active, verified, deleted));
+    }
+
+    @Operation(summary = "Get user details by id (Admin)")
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_VIEW_DETAILS')")
+    public ResponseEntity<UserManagementResponse> getUserById(@PathVariable UUID id) {
+        return ResponseEntity.ok(getUserUseCase.getUserById(id));
+    }
+
+    @Operation(summary = "Update user active status (Admin)")
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAuthority('USER_UPDATE_STATUS')")
+    public ResponseEntity<UserManagementResponse> updateUserStatus(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateUserStatusRequest request) {
+        return ResponseEntity.ok(getUserUseCase.updateStatus(id, request));
     }
 }

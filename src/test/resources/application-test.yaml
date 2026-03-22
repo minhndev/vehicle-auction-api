@@ -1,0 +1,72 @@
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.mongo.MongoDataAutoConfiguration
+      - org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.mongo.MongoRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisReactiveAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.springframework.boot.autoconfigure.cache.RedisCacheAutoConfiguration
+  datasource:
+    url: jdbc:h2:mem:vehicle_auction_test;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
+  cache:
+    type: simple
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/auction_logs_test
+    redis:
+      host: localhost
+      port: 6379
+  mail:
+    host: localhost
+    port: 1025
+    username: test@example.com
+    password: test
+
+aws:
+  s3:
+    endpoint: http://localhost:9000
+    bucket-name: vehicle-auction-bucket
+    region: ap-southeast-1
+    access-key: minioadmin
+    secret-key: minioadmin
+
+app:
+  admin:
+    email: admin@test.local
+    password: admin123
+  auth:
+    reset-token-expiration-minutes: 30
+  api:
+    base-url: http://localhost:8080
+  cors:
+    allowed-origins: http://localhost:3000,http://localhost:5173
+  frontend-url: http://localhost:5173
+
+vnpay:
+  tmn-code: TESTTMN
+  hash-secret: TESTSECRET
+  url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  return-url: http://localhost:5173/payment/return
+
+security:
+  jwt:
+    access-secret: test-access-secret
+    refresh-secret: test-refresh-secret
+    access-expiration: 3600000
+    refresh-expiration: 604800000
+
+

@@ -47,23 +47,23 @@ public class CreateProductUseCase {
         }
 
         // Map request to entity
-        ProductModel product = productMapper.toEntity(request);
+        ProductModel product = productMapper.toDomain(request);
         product.setSellerId(sellerId);
         product.setCategoryId(category.getId());
         product.setStatus(ProductStatus.PENDING);
 
         // Handle product images
-//        List<String> imageUrls = request.imageUrls();
-//        if (imageUrls != null) {
-//            for(int i = 0; i < imageUrls.size(); i++){
-//                ProductImageModel image = ProductImageModel.builder()
-//                        .url(imageUrls.get(i))
-//                        .sortOrder(i)
-//                        .isMain(i == 0)
-//                        .build();
-//                product.addImage(image);
-//            }
-//        }
+        List<String> imageUrls = request.imageUrls();
+        if (imageUrls != null) {
+            for(int i = 0; i < imageUrls.size(); i++){
+                ProductImageModel image = ProductImageModel.builder()
+                        .url(imageUrls.get(i))
+                        .sortOrder(i)
+                        .isMain(i == 0)
+                        .build();
+                product.addImage(image);
+            }
+        }
 
         // Save product to database
         ProductModel savedProduct = productRepository.save(product);

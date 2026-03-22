@@ -18,6 +18,8 @@ public class AccountModel {
     private String password;
     private boolean verified;
     private String verificationToken;
+    private String resetPasswordToken;
+    private LocalDateTime resetPasswordTokenExpiry;
     private int failedAttemptCount;
     private LocalDateTime lastLoginAt;
     private boolean system;
@@ -39,6 +41,8 @@ public class AccountModel {
                         String password,
                         boolean verified,
                         String verificationToken,
+                        String resetPasswordToken,
+                        LocalDateTime resetPasswordTokenExpiry,
                         int failedAttemptCount,
                         LocalDateTime lastLoginAt,
                         boolean system,
@@ -55,6 +59,8 @@ public class AccountModel {
         this.password = password;
         this.verified = verified;
         this.verificationToken = verificationToken;
+        this.resetPasswordToken = resetPasswordToken;
+        this.resetPasswordTokenExpiry = resetPasswordTokenExpiry;
         this.failedAttemptCount = failedAttemptCount;
         this.lastLoginAt = lastLoginAt;
         this.system = system;

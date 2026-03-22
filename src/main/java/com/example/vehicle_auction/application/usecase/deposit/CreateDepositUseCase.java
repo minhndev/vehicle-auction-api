@@ -1,11 +1,9 @@
 package com.example.vehicle_auction.application.usecase.deposit;
 
 import com.example.vehicle_auction.application.dto.deposit.DepositRequest;
-import com.example.vehicle_auction.application.dto.deposit.DepositResponse;
-import com.example.vehicle_auction.application.dto.payment.PaymentRequest;
+import com.example.vehicle_auction.application.dto.payment.CreatePaymentCommand;
 import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
-import com.example.vehicle_auction.application.mapper.DepositMapper;
-import com.example.vehicle_auction.application.port.out.PaymentGatewayPort;
+import com.example.vehicle_auction.application.usecase.payment.CreatePaymentUseCase;
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
@@ -27,10 +25,10 @@ public class CreateDepositUseCase {
 
     private final AuctionRepository auctionRepository;
     private final DepositRepository depositRepository;
-    private final DepositMapper depositMapper;
+    private final CreatePaymentUseCase createPaymentUseCase;
 
     @Transactional
-    public DepositResponse execute(DepositRequest request, UUID accountId) {
+    public PaymentResponse execute(DepositRequest request, UUID accountId, String ipAddress) {
         AuctionModel auction = auctionRepository.findById(request.auctionId())
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
 
@@ -50,6 +48,14 @@ public class CreateDepositUseCase {
 
         log.info("Account {} created PENDING deposit for Auction {}", accountId, auction.getId());
 
-        return depositMapper.toResponse(savedDeposit);
+        CreatePaymentCommand command = new CreatePaymentCommand(
+                accountId,
+                savedDeposit.getId(),
+                "DEPOSIT",
+                auction.getDepositAmount().longValue(),
+                ipAddress
+        );
+
+        return createPaymentUseCase.execute(command);
     }
 }

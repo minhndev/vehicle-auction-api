@@ -52,7 +52,7 @@ public enum ErrorCode {
     UNAUTHORIZED_ACTION("AUC_006", "auction.unauthorized.action", HttpStatus.FORBIDDEN),
 
     DEPOSIT_REQUIRED("BID_001", "bid.deposit.required", HttpStatus.FORBIDDEN),
-    DEPOSIT_ALREADY_PAID("BID_001", "deposit.already.paid", HttpStatus.CONFLICT),
+    DEPOSIT_ALREADY_PAID("BID_003", "deposit.already.paid", HttpStatus.CONFLICT),
     BID_AMOUNT_TOO_LOW("BID_002", "bid.amount.too.low", HttpStatus.BAD_REQUEST),
     ACCOUNT_UNAUTHORIZED("ACCOUNT_401", "account.unauthorized", HttpStatus.UNAUTHORIZED),
     REFRESH_UNAUTHORIZED("REFRESH_TOKEN_401", "refresh_token.unauthorized", HttpStatus.UNAUTHORIZED),

@@ -47,7 +47,7 @@ public class CreateProductUseCase {
         }
 
         // Map request to entity
-        ProductModel product = productMapper.toEntity(request);
+        ProductModel product = productMapper.toDomain(request);
         product.setSellerId(sellerId);
         product.setCategoryId(category.getId());
         product.setStatus(ProductStatus.PENDING);

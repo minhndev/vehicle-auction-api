@@ -41,7 +41,7 @@ public class ProductController {
     @ApiResponse(responseCode = "201", description = "Vehicle registered successfully")
     @ApiResponse(responseCode = "400", description = "Invalid input or VIN number already exists")
     @PostMapping
-//    @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_CREATE')")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody @Valid ProductRequest request, @AuthenticationPrincipal CustomUserDetails currentUser) {
         UUID sellerId = currentUser.getAccount().getId();
         ProductResponse response = createProductUseCase.execute(request, sellerId);
@@ -57,7 +57,7 @@ public class ProductController {
     @ApiResponse(responseCode = "400", description = "Vehicle is not in DRAFT status")
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     @PatchMapping("/{id}/approve")
-//    @PreAuthorize("hasAuthority('PRODUCT_APPROVE')")
+    @PreAuthorize("hasAuthority('PRODUCT_APPROVE')")
     public ResponseEntity<ProductResponse> approveProduct(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(approveProductUseCase.execute(id));
     }
@@ -71,7 +71,7 @@ public class ProductController {
     @ApiResponse(responseCode = "400", description = "Vehicle is not in PENDING status")
     @ApiResponse(responseCode = "404", description = "Vehicle not found")
     @PatchMapping("/{id}/reject")
-//    @PreAuthorize("hasAuthority('PRODUCT_REJECT')")
+    @PreAuthorize("hasAuthority('PRODUCT_REJECT')")
     public ResponseEntity<ProductResponse> rejectProduct(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(rejectProductUseCase.execute(id));
     }
@@ -90,7 +90,7 @@ public class ProductController {
 
     @Operation(summary = "Update product details")
     @PutMapping("/{id}")
-//    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
+    @PreAuthorize("hasAuthority('PRODUCT_UPDATE')")
     public ResponseEntity<ProductResponse> updateProduct(
             @PathVariable UUID id,
             @RequestBody @Valid ProductRequest request) {
@@ -100,7 +100,7 @@ public class ProductController {
     @Operation(summary = "Soft delete a product")
     @ApiResponse(responseCode = "204", description = "Product deleted successfully")
     @DeleteMapping("/{id}")
-//    @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
+    @PreAuthorize("hasAuthority('PRODUCT_DELETE')")
     public ResponseEntity<Void> deleteProduct(@PathVariable UUID id) {
         deleteProductUseCase.execute(id);
         return ResponseEntity.noContent().build();
@@ -109,7 +109,7 @@ public class ProductController {
     @Operation(summary = "Restore a product")
     @ApiResponse(responseCode = "204", description = "Product Restored successfully")
     @PatchMapping("/{id}/restore")
-//    @PreAuthorize("hasAuthority('PRODUCT_RESTORE')")
+    @PreAuthorize("hasAuthority('PRODUCT_RESTORE')")
     public ResponseEntity<Void> restoreProduct(@PathVariable UUID id) {
         restoreProductUseCase.execute(id);
         return ResponseEntity.noContent().build();

@@ -31,19 +31,17 @@ public class CreateCategoryUseCase {
     public CategoryResponse execute(CategoryRequest request){
         log.info("Creating new category with name: {}", request.name());
 
-        // Check if category with the same name already exists
         if  (categoryRepository.existsByName(request.name())){
             throw new AppException(ErrorCode.CATEGORY_ALREADY_EXISTS);
         }
 
-        // Generate slug from category name
         String slug = generateSlug(request.name());
 
         if  (categoryRepository.existsBySlug(slug)){
             slug = slug + "-" + System.currentTimeMillis();
         }
 
-        CategoryModel category = categoryMapper.toEntity(request);
+        CategoryModel category = categoryMapper.toDomain(request);
         category.setSlug(slug);
 
         CategoryModel savedCategory = categoryRepository.save(category);
@@ -52,7 +50,6 @@ public class CreateCategoryUseCase {
         return categoryMapper.toResponse(savedCategory);
     }
 
-    // Utility method to generate slug from category name
     private String generateSlug(String name){
         if (name == null) return "";
 
@@ -60,7 +57,7 @@ public class CreateCategoryUseCase {
         String normalized = Normalizer.normalize(noWhiteSpace, Normalizer.Form.NFD);
         String slug = NONLATIN.matcher(normalized).replaceAll("");
 
-        slug = slug.replaceAll("đ", "d").replaceAll("Đ", "D"); // Remove leading and trailing hyphens
+        slug = slug.replaceAll("đ", "d").replaceAll("Đ", "D");
 
         return slug.toLowerCase(Locale.ENGLISH).replaceAll("-{2,}", "-").replaceAll("^-|-$", "");
     }

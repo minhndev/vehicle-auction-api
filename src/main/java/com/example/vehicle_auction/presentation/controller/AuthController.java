@@ -1,9 +1,12 @@
 package com.example.vehicle_auction.presentation.controller;
 
 import com.example.vehicle_auction.application.dto.auth.AuthResponse;
+import com.example.vehicle_auction.application.dto.auth.ForgotPasswordRequest;
 import com.example.vehicle_auction.application.dto.auth.LoginRequest;
 import com.example.vehicle_auction.application.dto.auth.RefreshTokenRequest;
+import com.example.vehicle_auction.application.dto.auth.ResetPasswordRequest;
 import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.dto.common.MessageResponse;
 import com.example.vehicle_auction.application.usecase.auth.AuthUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,6 +45,20 @@ public class AuthController {
     @Operation(summary = "Logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request password reset link")
+    public ResponseEntity<MessageResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authUseCase.forgotPassword(request.email());
+        return ResponseEntity.ok(new MessageResponse("If the email exists, a reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password with token")
+    public ResponseEntity<MessageResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authUseCase.resetPassword(request);
+        return ResponseEntity.ok(new MessageResponse("Password has been reset successfully."));
     }
 
     @GetMapping("/verify")

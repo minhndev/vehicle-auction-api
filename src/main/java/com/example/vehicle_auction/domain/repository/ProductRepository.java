@@ -16,7 +16,6 @@ public interface ProductRepository {
     Page<ProductModel> findAllByDeletedFalse(Pageable pageable);
     Page<ProductModel> findAllBySellerIdAndDeletedFalse(UUID sellerId, Pageable pageable);
 
-    // Hàm chuẩn để fetch chi tiết và lưu trữ
     Optional<ProductModel> findById(UUID id);
     ProductModel save(ProductModel productModel);
 }

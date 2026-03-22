@@ -94,6 +94,7 @@ public class AuctionRepositoryImpl implements AuctionRepository {
 
     @Override
     public Optional<AuctionModel> findById(UUID id) {
-        return jpaAuctionRepository.findById(id).map(auctionEntityMapper::toDomain);
+        return jpaAuctionRepository.findById(id)
+                .map(auctionEntityMapper::toDomain);
     }
 }

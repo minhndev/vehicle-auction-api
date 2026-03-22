@@ -6,10 +6,11 @@ import com.example.vehicle_auction.presentation.response.ApiError;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,25 +29,22 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleAppException(AppException ex, Locale locale) {
         ErrorCode errorCode = ex.getErrorCode();
 
-        String message = messageSource.getMessage(
-                errorCode.getMessageKey(),
-                ex.getArgs(),
-                locale
-        );
+        String message = resolveMessage(errorCode, ex.getArgs(), locale);
 
         ApiError apiError = ApiError.builder()
                 .code(errorCode.getCode())
                 .message(message)
+                .details(List.of())
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return ResponseEntity.badRequest().body(apiError);
+        return ResponseEntity.status(errorCode.getHttpStatus()).body(apiError);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiError> handleValidationException(MethodArgumentNotValidException ex, Locale locale) {
         List<String> details = ex.getBindingResult().getFieldErrors().stream()
-                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .map(fieldError -> messageSource.getMessage(fieldError, locale))
                 .toList();
 
         ApiError apiError = ApiError.builder()
@@ -65,7 +63,8 @@ public class GlobalExceptionHandler {
 
         ApiError apiError = ApiError.builder()
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
-                .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessageKey())
+                .message(resolveMessage(ErrorCode.UNCATEGORIZED_EXCEPTION, null, Locale.getDefault()))
+                .details(List.of())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -73,16 +72,32 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
-    public ResponseEntity<ApiError> handleOptimisticLockingFailureException(Exception ex) {
+    public ResponseEntity<ApiError> handleOptimisticLockingFailureException(Exception ex, Locale locale) {
         log.error("Internal Server Error: ", ex);
 
         ApiError apiError = ApiError.builder()
                 .code(ErrorCode.DATA_CONFLICT.getCode())
-                .message(ErrorCode.DATA_CONFLICT.getMessageKey())
+                .message(resolveMessage(ErrorCode.DATA_CONFLICT, null, locale))
+                .details(List.of())
                 .timestamp(LocalDateTime.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, BadCredentialsException.class})
+    public ResponseEntity<ApiError> handleAccessDenied(Exception ex, Locale locale) {
+        ApiError apiError = ApiError.builder()
+                .code(ErrorCode.FORBIDDEN_EXCEPTION.getCode())
+                .message(resolveMessage(ErrorCode.FORBIDDEN_EXCEPTION, null, locale))
+                .details(List.of())
+                .timestamp(LocalDateTime.now())
+                .build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(apiError);
+    }
+
+    private String resolveMessage(ErrorCode errorCode, Object[] args, Locale locale) {
+        return messageSource.getMessage(errorCode.getMessageKey(), args, errorCode.getMessageKey(), locale);
     }
 
 

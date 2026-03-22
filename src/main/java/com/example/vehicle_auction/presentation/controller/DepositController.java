@@ -1,11 +1,13 @@
 package com.example.vehicle_auction.presentation.controller;
 
 import com.example.vehicle_auction.application.dto.deposit.DepositRequest;
-import com.example.vehicle_auction.application.dto.deposit.DepositResponse;
+import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
 import com.example.vehicle_auction.application.usecase.deposit.CreateDepositUseCase;
+import com.example.vehicle_auction.application.usecase.deposit.ForfeitDepositUseCase;
 import com.example.vehicle_auction.infrastructure.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +28,28 @@ public class DepositController {
 
     @Operation(summary = "Pay deposit for an auction (Mock)")
     @PostMapping
-    @PreAuthorize("isAuthenticated()") // Yêu cầu phải đăng nhập
-    public ResponseEntity<DepositResponse> payDeposit(
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<PaymentResponse> payDeposit(
             @Valid @RequestBody DepositRequest request,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest httpServletRequest
     ) {
-        // Lấy UUID accountId của người đang đăng nhập
-        DepositResponse response = createDepositUseCase.execute(request, userDetails.getAccount().getId());
+        String ipAddress = getClientIpAddress(httpServletRequest);
+
+        PaymentResponse response = createDepositUseCase.execute(
+                request,
+                userDetails.getAccount().getId(),
+                ipAddress
+        );
+
         return ResponseEntity.ok(response);
+    }
+
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        if (xForwardedForHeader == null || xForwardedForHeader.isEmpty()) {
+            return request.getRemoteAddr();
+        }
+        return xForwardedForHeader.split(",")[0].trim();
     }
 }

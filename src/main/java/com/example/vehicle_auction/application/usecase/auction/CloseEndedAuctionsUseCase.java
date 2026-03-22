@@ -3,6 +3,7 @@ package com.example.vehicle_auction.application.usecase.auction;
 import com.example.vehicle_auction.domain.enums.AuctionStatus;
 import com.example.vehicle_auction.domain.enums.OrderStatus;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
+import com.example.vehicle_auction.domain.event.AuctionFinishedEvent;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.domain.model.AuctionModel;
@@ -13,6 +14,7 @@ import com.example.vehicle_auction.domain.repository.OrderRepository;
 import com.example.vehicle_auction.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ public class CloseEndedAuctionsUseCase {
     private final AuctionRepository auctionRepository;
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void execute() {
@@ -65,10 +68,14 @@ public class CloseEndedAuctionsUseCase {
                     orderRepository.save(order);
                     log.info("Auction {} COMPLETED. Order created for Winner {}", auction.getId(), auction.getWinnerId());
 
+                    eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), auction.getWinnerId()));
+
                 } else {
                     auction.setStatus(AuctionStatus.FAILED);
                     product.setStatus(ProductStatus.APPROVED);
                     log.info("Auction {} FAILED due to no bids.", auction.getId());
+
+                    eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), null));
                 }
 
             }

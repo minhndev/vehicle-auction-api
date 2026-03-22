@@ -17,7 +17,7 @@ public interface ProductMapper {
     @Mapping(target = "deleted", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "isActive", ignore = true)
-    ProductModel toEntity(ProductRequest request);
+    ProductModel toDomain(ProductRequest request);
 
     @Mapping(target = "categoryName", ignore = true)
     ProductResponse toResponse(ProductModel productModel);

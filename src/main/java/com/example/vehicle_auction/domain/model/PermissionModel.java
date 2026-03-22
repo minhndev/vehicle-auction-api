@@ -1,10 +1,14 @@
 package com.example.vehicle_auction.domain.model;
 
 import com.example.vehicle_auction.domain.model.base.AuditModel;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Getter
+@Setter
 public class PermissionModel extends AuditModel {
     private String groupName;
     private String name;
@@ -31,35 +35,4 @@ public class PermissionModel extends AuditModel {
         this.system = system;
     }
 
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public boolean isSystem() {
-        return system;
-    }
-
-    public void setSystem(boolean system) {
-        this.system = system;
-    }
 }

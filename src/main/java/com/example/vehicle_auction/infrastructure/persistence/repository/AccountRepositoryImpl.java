@@ -67,4 +67,10 @@ public class AccountRepositoryImpl implements AccountRepository {
         return jpaAccountRepository.findByVerificationToken(token)
                 .map(accountEntityMapper::toDomain);
     }
+
+    @Override
+    public Optional<AccountModel> findByResetPasswordToken(String token) {
+        return jpaAccountRepository.findByResetPasswordToken(token)
+                .map(accountEntityMapper::toDomain);
+    }
 }

@@ -22,7 +22,7 @@ public class DeleteProductUseCase {
         ProductModel product = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
 
-        if (product.getStatus() == ProductStatus.IN_AUCTION) {
+        if (product.getStatus() == ProductStatus.IN_AUCTION || product.getStatus() == ProductStatus.SOLD) {
             throw new AppException(ErrorCode.PRODUCT_CANNOT_DELETE);
         }
 

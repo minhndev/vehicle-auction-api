@@ -30,22 +30,6 @@ public abstract class FullModel extends AuditModel {
         this.deletedAt = deletedAt;
     }
 
-    public boolean isDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
-
     public void softDelete() {
         this.deleted = true;
         this.deletedAt = LocalDateTime.now();

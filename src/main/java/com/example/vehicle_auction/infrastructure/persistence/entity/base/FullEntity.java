@@ -3,11 +3,13 @@ package com.example.vehicle_auction.infrastructure.persistence.entity.base;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @MappedSuperclass
 @Getter
+@Setter
 public abstract class FullEntity extends AuditEntity {
     @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;

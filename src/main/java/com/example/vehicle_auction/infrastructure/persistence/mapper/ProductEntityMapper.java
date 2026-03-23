@@ -23,6 +23,8 @@ public interface ProductEntityMapper {
     @Mapping(target = "category", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "deleted", source = "deleted")
+    @Mapping(target = "deletedAt", source = "deletedAt")
     void updateEntityFromModel(ProductModel model, @MappingTarget Product entity);
 
     ProductImageModel imageToDomain(ProductImage entity);

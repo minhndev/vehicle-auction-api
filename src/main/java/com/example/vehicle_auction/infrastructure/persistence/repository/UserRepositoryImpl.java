@@ -1,10 +1,10 @@
 package com.example.vehicle_auction.infrastructure.persistence.repository;
 
-import com.example.vehicle_auction.domain.model.AccountModel;
 import com.example.vehicle_auction.domain.model.UserModel;
 import com.example.vehicle_auction.domain.repository.UserRepository;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
+import com.example.vehicle_auction.infrastructure.persistence.mapper.AccountEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.UserEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.entity.User;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAccountRepository;
@@ -27,84 +27,42 @@ public class UserRepositoryImpl implements UserRepository {
     private final JpaRoleRepository jpaRoleRepository;
     private final JpaAccountRepository jpaAccountRepository;
     private final UserEntityMapper userEntityMapper;
+    private final AccountEntityMapper accountEntityMapper;
 
     @Override
     public UserModel save(UserModel userModel) {
-        User entity = resolveExistingUser(userModel)
-                .orElseGet(() -> userEntityMapper.toEntity(userModel));
+        User userEntity;
 
-        mergeUserFields(entity, userModel);
-        syncAccountRoles(entity, userModel);
-
-        User savedEntity = jpaUserRepository.save(entity);
-        return userEntityMapper.toDomain(savedEntity);
-    }
-
-    private Optional<User> resolveExistingUser(UserModel userModel) {
-        if (userModel.getId() != null) {
-            Optional<User> existingByUserId = jpaUserRepository.findById(userModel.getId());
-            if (existingByUserId.isPresent()) {
-                return existingByUserId;
-            }
+        if (userModel.getId() != null && jpaUserRepository.existsById(userModel.getId())) {
+            userEntity = jpaUserRepository.findById(userModel.getId()).get();
+            userEntityMapper.updateEntityFromModel(userModel, userEntity);
+        } else {
+            userEntity = userEntityMapper.toEntity(userModel);
         }
 
-        if (userModel.getAccount() != null && userModel.getAccount().getId() != null) {
-            return jpaUserRepository.findByAccountId(userModel.getAccount().getId());
-        }
+        if (userModel.getAccount() != null) {
+            Account accountEntity;
 
-        return Optional.empty();
-    }
-
-    private void mergeUserFields(User entity, UserModel userModel) {
-        entity.setFirstName(userModel.getFirstName());
-        entity.setLastName(userModel.getLastName());
-        entity.setIdentityNumber(userModel.getIdentityNumber());
-        entity.setBirthdate(userModel.getBirthdate());
-        entity.setGender(userModel.getGender());
-        entity.setPhoneNumber(userModel.getPhoneNumber());
-        entity.setAddress(userModel.getAddress());
-        entity.setAvatarURL(userModel.getAvatarURL());
-
-        if (userModel.getAccount() == null) {
-            return;
-        }
-
-        if (entity.getAccount() == null) {
-            UUID accountId = userModel.getAccount().getId();
-            if (accountId != null) {
-                entity.setAccount(jpaAccountRepository.getReferenceById(accountId));
+            if (userModel.getAccount().getId() != null && jpaAccountRepository.existsById(userModel.getAccount().getId())) {
+                accountEntity = jpaAccountRepository.findById(userModel.getAccount().getId()).get();
+                accountEntityMapper.updateEntityFromModel(userModel.getAccount(), accountEntity);
             } else {
-                entity.setAccount(userEntityMapper.toEntity(userModel).getAccount());
+                accountEntity = accountEntityMapper.toEntity(userModel.getAccount());
             }
-            return;
+
+            if (userModel.getAccount().getRoles() != null) {
+                Set<Role> managedRoles = userModel.getAccount().getRoles().stream()
+                        .map(roleModel -> jpaRoleRepository.getReferenceById(roleModel.getId()))
+                        .collect(Collectors.toSet());
+                accountEntity.setRoles(managedRoles);
+            }
+
+            accountEntity = jpaAccountRepository.save(accountEntity);
+            userEntity.setAccount(accountEntity);
         }
 
-        mergeAccountFields(entity.getAccount(), userModel.getAccount());
-    }
-
-    private void mergeAccountFields(Account entityAccount, AccountModel accountModel) {
-        entityAccount.setEmail(accountModel.getEmail());
-        entityAccount.setPassword(accountModel.getPassword());
-        entityAccount.setVerified(accountModel.isVerified());
-        entityAccount.setVerificationToken(accountModel.getVerificationToken());
-        entityAccount.setResetPasswordToken(accountModel.getResetPasswordToken());
-        entityAccount.setResetPasswordTokenExpiry(accountModel.getResetPasswordTokenExpiry());
-        entityAccount.setFailedAttemptCount(accountModel.getFailedAttemptCount());
-        entityAccount.setLastLoginAt(accountModel.getLastLoginAt());
-        entityAccount.setSystem(accountModel.isSystem());
-        entityAccount.setActive(accountModel.isActive());
-    }
-
-    private void syncAccountRoles(User entity, UserModel userModel) {
-        if (entity.getAccount() == null || userModel.getAccount() == null || userModel.getAccount().getRoles() == null) {
-            return;
-        }
-
-        Set<Role> managedRoles = userModel.getAccount().getRoles().stream()
-                .map(roleModel -> jpaRoleRepository.getReferenceById(roleModel.getId()))
-                .collect(Collectors.toSet());
-
-        entity.getAccount().setRoles(managedRoles);
+        User savedEntity = jpaUserRepository.save(userEntity);
+        return userEntityMapper.toDomain(savedEntity);
     }
 
     @Override
@@ -116,6 +74,18 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<UserModel> findById(UUID userId) {
         return jpaUserRepository.findDetailById(userId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserModel> findByIdAndDeletedFalse(UUID userId) {
+        return jpaUserRepository.findByIdAndDeletedFalse(userId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserModel> findByIdAndDeletedTrue(UUID userId) {
+        return jpaUserRepository.findByIdAndDeletedTrue(userId)
                 .map(userEntityMapper::toDomain);
     }
 

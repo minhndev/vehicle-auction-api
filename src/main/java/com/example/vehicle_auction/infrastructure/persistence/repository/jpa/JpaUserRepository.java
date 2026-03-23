@@ -37,4 +37,10 @@ public interface JpaUserRepository extends JpaRepository<User, UUID> {
     @EntityGraph(attributePaths = {"account", "account.roles"})
     @Query("SELECT u FROM User u WHERE u.id = :id")
     Optional<User> findDetailById(@Param("id") UUID id);
+
+    @EntityGraph(attributePaths = {"account", "account.roles"})
+    Optional<User> findByIdAndDeletedFalse(UUID id);
+
+    @EntityGraph(attributePaths = {"account", "account.roles"})
+    Optional<User> findByIdAndDeletedTrue(UUID id);
 }

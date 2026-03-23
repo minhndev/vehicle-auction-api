@@ -80,4 +80,37 @@ public class UserController {
     public ResponseEntity<UserManagementResponse> grantSellerRole(@PathVariable UUID id) {
         return ResponseEntity.ok(getUserUseCase.grantSellerRole(id));
     }
+
+    @Operation(summary = "Create a new user with roles (Admin)")
+    @PostMapping
+    @PreAuthorize("hasAuthority('USER_CREATE')")
+    public ResponseEntity<UserManagementResponse> createUser(@RequestBody @Valid CreateUserRequest req) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(createUserUseCase.execute(req));
+    }
+
+    @Operation(summary = "Update user details and roles (Admin)")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_UPDATE')")
+    public ResponseEntity<UserManagementResponse> updateUser(@PathVariable UUID id, @RequestBody @Valid UpdateUserRequest req) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(updateUserUseCase.execute(id, req));
+    }
+
+    @Operation(summary = "Soft delete a user (Admin)")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('USER_DELETE')")
+    public ResponseEntity<Void> softDeleteUser(@PathVariable UUID id) {
+        deleteUserUseCase.execute(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Restore a soft-deleted user (Admin)")
+    @PatchMapping("/{id}/restore")
+    @PreAuthorize("hasAuthority('USER_RESTORE')")
+    public ResponseEntity<Void> restoreUser(@PathVariable UUID id) {
+        restoreUserUseCase.execute(id);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -29,6 +29,7 @@ public enum ErrorCode {
     ACCOUNT_ALREADY_VERIFIED("ACCOUNT_400", "account.already.verified", HttpStatus.BAD_REQUEST),
     ACCOUNT_INVALID_RESET_TOKEN("ACCOUNT_400", "account.invalid.reset_token", HttpStatus.BAD_REQUEST),
     ACCOUNT_RESET_TOKEN_EXPIRED("ACCOUNT_401", "account.reset_token.expired", HttpStatus.UNAUTHORIZED),
+    ACCOUNT_CONFIRM_PASSWORD_INVALID("ACCOUNT_400", "account.confirm_password.invalid", HttpStatus.BAD_REQUEST),
 
     USER_NOT_FOUND("USER_404", "user.not.found", HttpStatus.NOT_FOUND),
 

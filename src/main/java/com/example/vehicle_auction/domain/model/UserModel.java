@@ -1,7 +1,10 @@
 package com.example.vehicle_auction.domain.model;
 
 import com.example.vehicle_auction.domain.enums.Gender;
+import com.example.vehicle_auction.domain.model.base.FullModel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -11,8 +14,9 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class UserModel {
-    private UUID id;
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserModel extends FullModel {
     private String firstName;
     private String lastName;
     private String identityNumber;
@@ -22,34 +26,6 @@ public class UserModel {
     private String address;
     private String avatarURL;
     private AccountModel account;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private String createdBy;
-    private String updatedBy;
-    private boolean deleted;
-    private LocalDateTime deletedAt;
-
-    public UserModel() {
-    }
-
-    public UserModel(UUID id, String firstName, String lastName, String identityNumber, LocalDate birthdate, Gender gender, String phoneNumber, String address, String avatarURL, AccountModel account, LocalDateTime createdAt, LocalDateTime updatedAt, String createdBy, String updatedBy, boolean deleted, LocalDateTime deletedAt) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.identityNumber = identityNumber;
-        this.birthdate = birthdate;
-        this.gender = gender;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.avatarURL = avatarURL;
-        this.account = account;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
-        this.deleted = deleted;
-        this.deletedAt = deletedAt;
-    }
 
     public String getFullName() {
         String first = this.firstName != null ? this.firstName : "";

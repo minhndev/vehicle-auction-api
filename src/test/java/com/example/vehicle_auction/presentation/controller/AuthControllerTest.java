@@ -3,6 +3,7 @@ package com.example.vehicle_auction.presentation.controller;
 import com.example.vehicle_auction.application.dto.auth.AuthResponse;
 import com.example.vehicle_auction.application.dto.auth.LoginRequest;
 import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.dto.auth.VerifyAccountRequest;
 import com.example.vehicle_auction.application.usecase.auth.AuthUseCase;
 import com.example.vehicle_auction.domain.enums.Gender;
 import com.example.vehicle_auction.infrastructure.security.JwtService;
@@ -83,11 +84,14 @@ public class AuthControllerTest {
 
     @Test
     void should_Return200_When_AccountIsVerified() throws Exception {
-        doNothing().when(authUseCase).verifyAccount(anyString());
+        VerifyAccountRequest request = new VerifyAccountRequest("test@example.com", "123456");
 
-        mockMvc.perform(get("/auth/verify")
-                        .param("token", "valid-uuid-token"))
+        doNothing().when(authUseCase).verifyAccount(any(VerifyAccountRequest.class));
+
+        mockMvc.perform(post("/auth/verify")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("Account verified successfully!"));
+                .andExpect(jsonPath("$.message").value("Account verified successfully!"));
     }
 }

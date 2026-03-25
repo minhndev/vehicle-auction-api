@@ -71,6 +71,8 @@ public enum ErrorCode {
     ORDER_CANNOT_BE_UPDATED("ORD_004", "order.cannot.be.updated", HttpStatus.BAD_REQUEST),
     SHIPPING_INFO_REQUIRED("ORD_005", "order.shipping_info.required", HttpStatus.BAD_REQUEST),
 
+    CONTACT_NOT_FOUND("CONTACT_404", "contact.not.found", HttpStatus.NOT_FOUND),
+
 
     // File
     FILE_UPLOAD_FAILED("FILE_001", "file.upload.failed", HttpStatus.INTERNAL_SERVER_ERROR),

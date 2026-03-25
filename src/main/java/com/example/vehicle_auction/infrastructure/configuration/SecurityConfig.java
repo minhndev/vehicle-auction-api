@@ -43,8 +43,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html")
                         .permitAll()
-                        .requestMatchers("/auth/**","/ws-auctions/**","/deposits/**","/payments/vnpay-ipn", "/payments/vnpay-return","/auctions/**","/products/**","/watchlist/**")
-                        .requestMatchers("/auth/**","/ws-auctions/**","/deposits/**","/payments/vnpay-ipn", "/payments/vnpay-return","/auctions/**","/products/**", "/contacts/**")
+                        .requestMatchers("/auth/**","/ws-auctions/**","/deposits/**","/payments/vnpay-ipn", "/payments/vnpay-return","/auctions/**","/products/**","/watchlist/**","/contacts/**")
                         .permitAll()
                         .anyRequest()
                         .authenticated()

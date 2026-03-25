@@ -66,6 +66,14 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject, isRefreshToken);
     }
 
+    public String extractAccountId(String accessToken) {
+        Object accountId = extractAllClaims(accessToken, false).get("accountId");
+        if (accountId == null) {
+            throw new IllegalArgumentException("Missing accountId claim");
+        }
+        return accountId.toString();
+    }
+
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean isRefreshToken) {
         final Claims claims = extractAllClaims(token, isRefreshToken);
         return claimsResolver.apply(claims);

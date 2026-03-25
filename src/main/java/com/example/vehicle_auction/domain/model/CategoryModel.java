@@ -15,6 +15,4 @@ public class CategoryModel extends FullModel {
     private String slug;
     private String description;
     private boolean isActive;
-    private boolean deleted;
-    private LocalDateTime deletedAt;
 }

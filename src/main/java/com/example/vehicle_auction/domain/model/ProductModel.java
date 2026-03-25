@@ -37,9 +37,6 @@ public class ProductModel extends FullModel {
     private boolean isActive;
     private Integer version;
 
-    private boolean deleted;
-    private LocalDateTime deletedAt;
-
     private List<ProductImageModel> images;
 
     public void addImage(ProductImageModel image) {

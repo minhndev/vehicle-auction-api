@@ -6,6 +6,7 @@ import com.example.vehicle_auction.application.port.out.TransactionRepositoryPor
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.enums.OrderStatus;
 import com.example.vehicle_auction.domain.enums.PaymentStatus;
+import com.example.vehicle_auction.domain.event.DepositPaymentProcessedEvent;
 import com.example.vehicle_auction.domain.model.DepositModel;
 import com.example.vehicle_auction.domain.model.OrderModel;
 import com.example.vehicle_auction.domain.model.TransactionModel;
@@ -13,9 +14,11 @@ import com.example.vehicle_auction.domain.repository.DepositRepository;
 import com.example.vehicle_auction.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,6 +31,7 @@ public class ProcessPaymentIpnUseCase {
     private final TransactionRepositoryPort transactionRepositoryPort;
     private final DepositRepository depositRepository;
     private final OrderRepository orderRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public IpnResponse execute(Map<String, String> vnpayParams) {
@@ -46,6 +50,7 @@ public class ProcessPaymentIpnUseCase {
         }
 
         TransactionModel transaction = txOptional.get();
+        DepositPaymentProcessedEvent depositEvent = null;
 
         if (transaction.getStatus() != PaymentStatus.PENDING) {
             return new IpnResponse("02", "Order already confirmed");
@@ -72,6 +77,18 @@ public class ProcessPaymentIpnUseCase {
                 deposit.setGatewayTransactionNo(vnpTransactionNo);
                 depositRepository.save(deposit);
 
+                depositEvent = new DepositPaymentProcessedEvent(
+                        deposit.getAccountId(),
+                        deposit.getAuctionId(),
+                        deposit.getId(),
+                        txnRef,
+                        vnpTransactionNo,
+                        responseCode,
+                        transaction.getStatus(),
+                        deposit.getStatus(),
+                        LocalDateTime.now()
+                );
+
             } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {
 
                 UUID orderId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
@@ -96,6 +113,18 @@ public class ProcessPaymentIpnUseCase {
                 deposit.setStatus(DepositStatus.FAILED);
                 depositRepository.save(deposit);
 
+                depositEvent = new DepositPaymentProcessedEvent(
+                        deposit.getAccountId(),
+                        deposit.getAuctionId(),
+                        deposit.getId(),
+                        txnRef,
+                        vnpTransactionNo,
+                        responseCode,
+                        transaction.getStatus(),
+                        deposit.getStatus(),
+                        LocalDateTime.now()
+                );
+
             } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {
 
                 UUID orderId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
@@ -110,6 +139,9 @@ public class ProcessPaymentIpnUseCase {
         }
 
         transactionRepositoryPort.save(transaction);
+        if (depositEvent != null) {
+            eventPublisher.publishEvent(depositEvent);
+        }
         return new IpnResponse("00", "Confirm Success");
     }
 }

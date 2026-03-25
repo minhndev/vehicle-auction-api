@@ -2,9 +2,12 @@ package com.example.vehicle_auction.infrastructure.persistence.repository;
 
 import com.example.vehicle_auction.domain.model.UserModel;
 import com.example.vehicle_auction.domain.repository.UserRepository;
+import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
 import com.example.vehicle_auction.infrastructure.persistence.entity.Role;
+import com.example.vehicle_auction.infrastructure.persistence.mapper.AccountEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.mapper.UserEntityMapper;
 import com.example.vehicle_auction.infrastructure.persistence.entity.User;
+import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAccountRepository;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaRoleRepository;
 import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,21 +25,43 @@ import java.util.stream.Collectors;
 public class UserRepositoryImpl implements UserRepository {
     private final JpaUserRepository jpaUserRepository;
     private final JpaRoleRepository jpaRoleRepository;
+    private final JpaAccountRepository jpaAccountRepository;
     private final UserEntityMapper userEntityMapper;
+    private final AccountEntityMapper accountEntityMapper;
 
     @Override
     public UserModel save(UserModel userModel) {
-        User entity = userEntityMapper.toEntity(userModel);
+        User userEntity;
 
-        if (entity.getAccount() != null && userModel.getAccount() != null && userModel.getAccount().getRoles() != null) {
-            Set<Role> managedRoles = userModel.getAccount().getRoles().stream()
-                    .map(roleModel -> jpaRoleRepository.getReferenceById(roleModel.getId()))
-                    .collect(Collectors.toSet());
-
-            entity.getAccount().setRoles(managedRoles);
+        if (userModel.getId() != null && jpaUserRepository.existsById(userModel.getId())) {
+            userEntity = jpaUserRepository.findById(userModel.getId()).get();
+            userEntityMapper.updateEntityFromModel(userModel, userEntity);
+        } else {
+            userEntity = userEntityMapper.toEntity(userModel);
         }
 
-        User savedEntity = jpaUserRepository.save(entity);
+        if (userModel.getAccount() != null) {
+            Account accountEntity;
+
+            if (userModel.getAccount().getId() != null && jpaAccountRepository.existsById(userModel.getAccount().getId())) {
+                accountEntity = jpaAccountRepository.findById(userModel.getAccount().getId()).get();
+                accountEntityMapper.updateEntityFromModel(userModel.getAccount(), accountEntity);
+            } else {
+                accountEntity = accountEntityMapper.toEntity(userModel.getAccount());
+            }
+
+            if (userModel.getAccount().getRoles() != null) {
+                Set<Role> managedRoles = userModel.getAccount().getRoles().stream()
+                        .map(roleModel -> jpaRoleRepository.getReferenceById(roleModel.getId()))
+                        .collect(Collectors.toSet());
+                accountEntity.setRoles(managedRoles);
+            }
+
+            accountEntity = jpaAccountRepository.save(accountEntity);
+            userEntity.setAccount(accountEntity);
+        }
+
+        User savedEntity = jpaUserRepository.save(userEntity);
         return userEntityMapper.toDomain(savedEntity);
     }
 
@@ -49,6 +74,18 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<UserModel> findById(UUID userId) {
         return jpaUserRepository.findDetailById(userId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserModel> findByIdAndDeletedFalse(UUID userId) {
+        return jpaUserRepository.findByIdAndDeletedFalse(userId)
+                .map(userEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<UserModel> findByIdAndDeletedTrue(UUID userId) {
+        return jpaUserRepository.findByIdAndDeletedTrue(userId)
                 .map(userEntityMapper::toDomain);
     }
 

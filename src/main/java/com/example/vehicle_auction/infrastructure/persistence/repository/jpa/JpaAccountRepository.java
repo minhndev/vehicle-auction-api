@@ -1,6 +1,7 @@
 package com.example.vehicle_auction.infrastructure.persistence.repository.jpa;
 
 import com.example.vehicle_auction.infrastructure.persistence.entity.Account;
+import com.example.vehicle_auction.infrastructure.persistence.entity.User;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -19,4 +20,10 @@ public interface JpaAccountRepository extends JpaRepository<Account, UUID> {
     Optional<Account> findByVerificationToken(String verificationToken);
 
     Optional<Account> findByResetPasswordToken(String resetPasswordToken);
+
+    Optional<Account> findByEmailAndDeletedFalse(String email);
+
+    Optional<Account> findByIdAndDeletedFalse(UUID id);
+
+    Optional<Account> findByIdAndDeletedTrue(UUID id);
 }

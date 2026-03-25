@@ -14,5 +14,9 @@ public interface UserRepository {
 
     Optional<UserModel> findById(UUID userId);
 
+    Optional<UserModel> findByIdAndDeletedFalse(UUID userId);
+
+    Optional<UserModel> findByIdAndDeletedTrue(UUID userId);
+
     Page<UserModel> findAll(Pageable pageable, String keyword, Boolean active, Boolean verified, Boolean deleted);
 }

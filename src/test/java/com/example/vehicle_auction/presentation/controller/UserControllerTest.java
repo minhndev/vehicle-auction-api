@@ -128,4 +128,30 @@ class UserControllerTest {
 
         verify(getUserUseCase).updateStatus(eq(userId), any(UpdateUserStatusRequest.class));
     }
+
+    @Test
+    void shouldReturn200WhenGrantingSellerRole() throws Exception {
+        UUID userId = UUID.randomUUID();
+        UserManagementResponse response = new UserManagementResponse(
+                userId,
+                "John Doe",
+                "John",
+                "Doe",
+                "john@example.com",
+                "0901234567",
+                true,
+                true,
+                false,
+                "SYSTEM",
+                null,
+                null,
+                List.of("USER", "SELLER")
+        );
+
+        when(getUserUseCase.grantSellerRole(userId)).thenReturn(response);
+
+        mockMvc.perform(patch("/users/{id}/grant-seller", userId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.roles[1]").value("SELLER"));
+    }
 }

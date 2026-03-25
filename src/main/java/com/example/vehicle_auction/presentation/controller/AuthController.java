@@ -1,13 +1,9 @@
 package com.example.vehicle_auction.presentation.controller;
 
-import com.example.vehicle_auction.application.dto.auth.AuthResponse;
-import com.example.vehicle_auction.application.dto.auth.ForgotPasswordRequest;
-import com.example.vehicle_auction.application.dto.auth.LoginRequest;
-import com.example.vehicle_auction.application.dto.auth.RefreshTokenRequest;
-import com.example.vehicle_auction.application.dto.auth.ResetPasswordRequest;
-import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.dto.auth.*;
 import com.example.vehicle_auction.application.dto.common.MessageResponse;
 import com.example.vehicle_auction.application.usecase.auth.AuthUseCase;
+import com.example.vehicle_auction.application.usecase.auth.GoogleAuthUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -22,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "APIs related to user authentication")
 public class AuthController {
     private final AuthUseCase authUseCase;
+    private final GoogleAuthUseCase googleAuthUseCase;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new account")
@@ -33,6 +30,13 @@ public class AuthController {
     @Operation(summary = "Login to the system")
     public ResponseEntity<AuthResponse> login(@RequestBody @Valid LoginRequest request) {
         return ResponseEntity.ok(authUseCase.login(request));
+    }
+
+    @PostMapping("/google-login")
+    @Operation(summary = "Login with Google ID Token fron Frontend")
+    public ResponseEntity<AuthResponse> authenticateWithGoogle(@RequestBody @Valid GoogleLoginRequest request) {
+        AuthResponse response = googleAuthUseCase.authenticate(request.idToken());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh-token")

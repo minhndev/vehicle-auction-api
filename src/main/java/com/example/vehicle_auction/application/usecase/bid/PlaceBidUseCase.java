@@ -3,7 +3,6 @@ package com.example.vehicle_auction.application.usecase.bid;
 import com.example.vehicle_auction.application.dto.bid.BidRequest;
 import com.example.vehicle_auction.application.dto.bid.BidResponse;
 import com.example.vehicle_auction.application.mapper.BidMapper;
-import com.example.vehicle_auction.domain.event.BidPlacedEvent;
 import com.example.vehicle_auction.domain.event.OutbidEvent;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
@@ -14,24 +13,26 @@ import com.example.vehicle_auction.domain.repository.BidRepository;
 
 import com.example.vehicle_auction.domain.repository.DepositRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.context.ApplicationEventPublisher;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PlaceBidUseCase {
     private final AuctionRepository auctionRepository;
     private final BidRepository bidRepository;
     private final DepositRepository depositRepository;
     private final BidMapper bidMapper;
     private final ApplicationEventPublisher eventPublisher;
+    private final BidRealtimeStore bidRealtimeStore;
 
-    @CacheEvict(value = "top_bids", key = "#auctionId")
     @Transactional
     public BidResponse execute(UUID auctionId, BidRequest request, UUID bidderId) {
 
@@ -45,18 +46,34 @@ public class PlaceBidUseCase {
         AuctionModel auctionModel = auctionRepository.findByIdWithLock(auctionId)
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
 
+        BigDecimal minNextBid = auctionModel.getCurrentPrice().add(auctionModel.getBidIncrement());
+        Integer expectedVersion = auctionModel.getVersion();
+
         UUID previousWinnerId = auctionModel.getWinnerId();
 
         BidModel newBidModel = auctionModel.placeBid(request.amount(), bidderId, now);
 
-        auctionRepository.save(auctionModel);
+        auctionModel = auctionRepository.save(auctionModel);
         BidModel savedBidModel = bidRepository.save(newBidModel);
+
+        BidRealtimeStore.RedisBidWriteStatus redisWriteStatus = bidRealtimeStore.writeBidAtomically(
+                auctionModel,
+                savedBidModel,
+                minNextBid,
+                expectedVersion
+        );
+        if (redisWriteStatus != BidRealtimeStore.RedisBidWriteStatus.OK) {
+            log.warn("Redis bid atomic write did not complete cleanly. auctionId={}, bidId={}, status={}",
+                    auctionId,
+                    savedBidModel.getId(),
+                    redisWriteStatus
+            );
+        }
 
         if (previousWinnerId != null && !previousWinnerId.equals(bidderId)){
             eventPublisher.publishEvent(new OutbidEvent(previousWinnerId, auctionId, request.amount()));
         }
 
-        eventPublisher.publishEvent(new BidPlacedEvent(auctionId, savedBidModel.getAmount(), bidderId));
 
         boolean isWinning = savedBidModel.getBidderId().equals(auctionModel.getWinnerId());
 

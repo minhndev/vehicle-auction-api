@@ -16,5 +16,7 @@ public interface CategoryEntityMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
+    @Mapping(target = "deleted", source = "deleted")
+    @Mapping(target = "deletedAt", source = "deletedAt")
     void updateEntityFromModel(CategoryModel model, @MappingTarget Category entity);
 }

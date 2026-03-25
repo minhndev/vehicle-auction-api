@@ -22,13 +22,13 @@ public class AuctionScheduler {
         try {
             openScheduledAuctionsUseCase.execute();
         }catch (Exception e){
-            log.error("Error while opening scheduled auctions: {}", e.getMessage());
+            log.error("Error while opening scheduled auctions", e);
         }
 
         try {
             closeEndedAuctionsUseCase.execute();
         }catch (Exception e){
-            log.error("Error while closing ended auctions: {}", e.getMessage());
+            log.error("Error while closing ended auctions", e);
         }
     }
 

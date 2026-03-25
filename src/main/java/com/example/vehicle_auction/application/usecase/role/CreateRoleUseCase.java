@@ -38,12 +38,6 @@ public class CreateRoleUseCase {
         RoleModel roleModel = roleMapper.toDomain(req);
 
         if (req.permissionIds() != null && !req.permissionIds().isEmpty()) {
-//            Set<PermissionModel> permissions = req.permissionIds().stream()
-//                    .map(id -> permissionRepository.findById(id)
-//                            .orElseThrow(() -> new AppException(ErrorCode.PERMISSION_NOT_FOUND)))
-//                    .collect(Collectors.toSet());
-//
-//            roleModel.setPermissions(permissions);
             List<PermissionModel> permissions = permissionRepository.findAllById(req.permissionIds());
 
             if (permissions.size() != req.permissionIds().size()) {

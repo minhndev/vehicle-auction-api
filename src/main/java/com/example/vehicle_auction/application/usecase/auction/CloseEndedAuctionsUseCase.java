@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -48,6 +49,8 @@ public class CloseEndedAuctionsUseCase {
             if (auctions.isEmpty()) {
                 break;
             }
+
+            List<ProductModel> productsToUpdate = new ArrayList<>();
 
             for (AuctionModel auction : auctions) {
                 ProductModel product = productRepository.findById(auction.getProductId())
@@ -78,8 +81,11 @@ public class CloseEndedAuctionsUseCase {
                     eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), null));
                 }
 
+                productsToUpdate.add(product);
             }
+
             auctionRepository.saveAll(auctions);
+            productRepository.saveAll(productsToUpdate);
 
         } while (page.hasNext());
 

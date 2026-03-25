@@ -1,6 +1,7 @@
 package com.example.vehicle_auction.presentation.controller;
 
 import com.example.vehicle_auction.application.dto.bid.BidRequest;
+import com.example.vehicle_auction.application.dto.bid.BidHistoryItemResponse;
 import com.example.vehicle_auction.application.dto.bid.BidResponse;
 import com.example.vehicle_auction.application.usecase.bid.GetBidHistoryUseCase;
 import com.example.vehicle_auction.application.usecase.bid.PlaceBidUseCase;
@@ -39,9 +40,9 @@ public class BidController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Get Top 10 Bids Ranking")
+    @Operation(summary = "Get Top 10 Bids Timeline (masked bidder identity)")
     @GetMapping
-    public ResponseEntity<List<BidResponse>> getAllBids(@PathVariable UUID auctionId) {
+    public ResponseEntity<List<BidHistoryItemResponse>> getAllBids(@PathVariable UUID auctionId) {
         return ResponseEntity.ok(getBidUseCase.getTop10Bids(auctionId));
     }
 

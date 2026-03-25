@@ -11,8 +11,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -45,6 +47,20 @@ public class ProductRepositoryImpl implements ProductRepository {
     @Override
     public Page<ProductModel> findAllBySellerIdAndDeletedFalse(UUID sellerId, Pageable pageable) {
         return jpaRepository.findAllBySellerIdAndDeletedFalse(sellerId, pageable).map(mapper::toDomain);
+    }
+
+    @Override
+    public void saveAll(List<ProductModel> productModels) {
+        List<Product> entities = productModels.stream().map(model -> {
+            if (model.getId() != null) {
+                Product existing = jpaRepository.findById(model.getId()).orElseThrow();
+                mapper.updateEntityFromModel(model, existing);
+                return existing;
+            }
+            return mapper.toEntity(model);
+        }).collect(Collectors.toList());
+
+        jpaRepository.saveAll(entities);
     }
 
     @Override

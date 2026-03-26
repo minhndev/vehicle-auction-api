@@ -30,4 +30,17 @@ public class OpenScheduledAuctionsUseCase {
         }
     }
 
+    public void execute(java.util.UUID auctionId) {
+        log.info("Attempting to open specific auction ID: {}", auctionId);
+        auctionRepository.findById(auctionId).ifPresent(auction -> {
+            if (auction.getStatus() == AuctionStatus.UPCOMING) {
+                auction.setStatus(AuctionStatus.ACTIVE);
+                auctionRepository.save(auction);
+                log.info("Auction with ID {} status changed to ACTIVE via Event", auction.getId());
+            } else {
+                log.warn("Auction {} is in state {}, cannot open.", auctionId, auction.getStatus());
+            }
+        });
+    }
+
 }

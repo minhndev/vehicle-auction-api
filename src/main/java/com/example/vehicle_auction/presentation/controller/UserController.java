@@ -89,7 +89,7 @@ public class UserController {
 
     @Operation(summary = "Update user details and roles (Admin)")
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('USER_UPDATE')")
+//    @PreAuthorize("hasAuthority('USER_UPDATE')")
     public ResponseEntity<UserManagementResponse> updateUser(@PathVariable UUID id, @RequestBody @Valid UpdateUserRequest req) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(updateUserUseCase.execute(id, req));

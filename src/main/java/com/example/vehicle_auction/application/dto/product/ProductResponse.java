@@ -9,6 +9,8 @@ import java.util.UUID;
 
 public record ProductResponse(
         UUID id,
+        UUID sellerId,
+        String createdBy,
         String name,
         String brand,
         String model,

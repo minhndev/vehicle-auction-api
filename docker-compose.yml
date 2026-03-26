@@ -66,6 +66,7 @@ services:
       - db-mongodb
       - db-redis
       - rabbitmq
+      - minio
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     env_file:
@@ -78,6 +79,7 @@ services:
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS:-admin}
+      S3_ENDPOINT: http://minio:9090
     networks:
       - auction-network
 

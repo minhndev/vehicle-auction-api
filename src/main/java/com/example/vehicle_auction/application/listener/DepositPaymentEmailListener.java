@@ -1,16 +1,17 @@
 package com.example.vehicle_auction.application.listener;
 
-import com.example.vehicle_auction.application.port.out.EmailSenderPort;
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.event.DepositPaymentProcessedEvent;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
 import com.example.vehicle_auction.domain.model.AccountModel;
 import com.example.vehicle_auction.domain.repository.AccountRepository;
+import com.example.vehicle_auction.infrastructure.configuration.RabbitMQConfig;
+import com.example.vehicle_auction.infrastructure.messaging.RabbitMQProducer;
+import com.example.vehicle_auction.infrastructure.messaging.dto.MailMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import java.time.format.DateTimeFormatter;
@@ -20,9 +21,8 @@ import java.time.format.DateTimeFormatter;
 @RequiredArgsConstructor
 public class DepositPaymentEmailListener {
     private final AccountRepository accountRepository;
-    private final EmailSenderPort emailSenderPort;
+    private final RabbitMQProducer rabbitMQProducer;
 
-    @Async
     @EventListener
     public void handleDepositPaymentEvent(DepositPaymentProcessedEvent event) {
         try {
@@ -96,8 +96,9 @@ public class DepositPaymentEmailListener {
                 return;
             }
 
-            emailSenderPort.sendEmail(account.getEmail(), subject, body);
-            log.info("Successfully sent {} email to user {} (TxnRef: {})",
+            MailMessage mailMessage = new MailMessage(account.getEmail(), subject, body);
+            rabbitMQProducer.sendMessage(RabbitMQConfig.RK_MAIL_DEPOSIT, mailMessage);
+            log.info("Successfully pushed {} email message to RabbitMQ for user {} (TxnRef: {})",
                     event.depositStatus(), account.getEmail(), event.transactionRef());
 
         } catch (Exception e) {

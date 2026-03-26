@@ -15,9 +15,9 @@ public class AuctionScheduler {
     private final OpenScheduledAuctionsUseCase openScheduledAuctionsUseCase;
     private final CloseEndedAuctionsUseCase closeEndedAuctionsUseCase;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 300000)
     public void processAuctionLifecycle() {
-        log.debug("Running Auction Lifecycle Scheduler...");
+        log.info("Running Safety Net Auction Lifecycle (every 5 mins)...");
 
         try {
             openScheduledAuctionsUseCase.execute();

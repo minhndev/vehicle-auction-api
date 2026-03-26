@@ -12,16 +12,16 @@ import java.net.URI;
 
 @Configuration
 public class AwsS3Config {
-    @Value("${aws.s3.endpoint}")
+    @Value("${minio.endpoint}")
     private String endpoint;
 
-    @Value("${aws.s3.region}")
+    @Value("${minio.region}")
     private String region;
 
-    @Value("${aws.s3.access-key}")
+    @Value("${minio.access-key}")
     private String accessKey;
 
-    @Value("${aws.s3.secret-key}")
+    @Value("${minio.secret-key}")
     private String secretKey;
 
     @Bean

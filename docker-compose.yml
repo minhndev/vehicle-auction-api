@@ -37,12 +37,12 @@ services:
       - auction-network
 
   rabbitmq:
-    build: 
+    build:
       context: ./rabbitmq
     container_name: auction-rabbitmq
     restart: always
     ports:
-      - "5672:5672"   # AMQP protocol
+      - "5672:5672" # AMQP protocol
       - "15672:15672" # Management UI
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-admin}
@@ -52,7 +52,7 @@ services:
     networks:
       - auction-network
     healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -81,6 +81,23 @@ services:
     networks:
       - auction-network
 
+  minio:
+    image: quay.io/minio/aistor/minio:RELEASE.2026-03-20T23-11-32Z
+    container_name: auction-minio
+    restart: always
+    ports:
+      - "9090:9090" # API
+      - "9001:9001" # Console
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_LICENSE: ${MINIO_LICENSE}
+    volumes:
+      - minio_data:/data
+    command: server /data --address ":9090" --console-address ":9001"
+    networks:
+      - auction-network
+
 networks:
   auction-network:
     driver: bridge
@@ -90,3 +107,4 @@ volumes:
   mongo_data:
   redis_data:
   rabbitmq_data:
+  minio_data:

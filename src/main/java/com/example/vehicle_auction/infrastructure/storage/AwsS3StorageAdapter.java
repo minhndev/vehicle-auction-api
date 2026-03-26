@@ -21,10 +21,10 @@ public class AwsS3StorageAdapter implements FileStoragePort {
 
     private final S3Client s3Client;
 
-    @Value("${aws.s3.bucket-name}")
+    @Value("${minio.bucket-name}")
     private String bucketName;
 
-    @Value("${aws.s3.endpoint}")
+    @Value("${minio.endpoint}")
     private String endpoint;
 
     @Override

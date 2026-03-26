@@ -27,6 +27,9 @@ public class AwsS3StorageAdapter implements FileStoragePort {
     @Value("${minio.endpoint}")
     private String endpoint;
 
+    @Value("${minio.external-endpoint}")
+    private String externalEndpoint;
+
     @Override
     public String uploadFile(String fileName, String contentType, InputStream inputStream, long contentLength) {
         try {
@@ -42,11 +45,11 @@ public class AwsS3StorageAdapter implements FileStoragePort {
 
             s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, contentLength));
 
+            // String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
+            // bucketName, region, uniqueFileName);
+            // log.info("Uploaded file to S3 successfully: {}", fileUrl);
 
-//            String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, uniqueFileName);
-//            log.info("Uploaded file to S3 successfully: {}", fileUrl);
-
-            String fileUrl = String.format("%s/%s/%s", endpoint, bucketName, uniqueFileName);
+            String fileUrl = String.format("%s/%s/%s", externalEndpoint, bucketName, uniqueFileName);
             log.info("Uploaded file successfully to MinIO: {}", fileUrl);
             return fileUrl;
 

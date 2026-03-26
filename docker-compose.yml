@@ -73,8 +73,9 @@ services:
       - .env
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db-postgres:5432/${POSTGRES_DB}
-      SPRING_DATA_MONGODB_URI: mongodb://db-mongodb:27017/auction_logs
+      SPRING_DATA_MONGODB_URI: mongodb://db-mongodb:27017/${MONGO_DB:-auction_logs}
       SPRING_DATA_REDIS_HOST: db-redis
+      SPRING_DATA_REDIS_PORT: 6379
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: 5672
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER:-admin}

@@ -49,7 +49,7 @@ public class AuctionModel extends AuditModel {
         // Anti-snipping
         LocalDateTime currentEnd = (this.actualEndTime != null) ? this.actualEndTime : this.endTime;
         if (now.plusMinutes(5).isAfter(currentEnd)) {
-            this.actualEndTime = currentEnd.plusMinutes(5);
+            this.actualEndTime = now.plusMinutes(5);
         }
 
         BidModel newBid = BidModel.builder()

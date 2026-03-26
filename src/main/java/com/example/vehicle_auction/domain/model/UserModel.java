@@ -41,11 +41,13 @@ public class UserModel extends FullModel {
         return age >= 18;
     }
 
-    public void updateProfile(String firstName, String lastName, String phoneNumber, String address) {
+    public void updateProfile(String firstName, String lastName, String phoneNumber, String address, String identityNumber, String avatarURL) {
         if (firstName != null && !firstName.isBlank()) this.firstName = firstName;
         if (lastName != null && !lastName.isBlank()) this.lastName = lastName;
         if (phoneNumber != null && !phoneNumber.isBlank()) this.phoneNumber = phoneNumber;
         if (address != null && !address.isBlank()) this.address = address;
+        if (identityNumber != null && !identityNumber.isBlank()) this.identityNumber = identityNumber;
+        if (avatarURL != null && !avatarURL.isBlank()) this.avatarURL = avatarURL;
     }
 
 }

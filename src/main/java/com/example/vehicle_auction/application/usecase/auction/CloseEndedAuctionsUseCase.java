@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -50,45 +49,58 @@ public class CloseEndedAuctionsUseCase {
                 break;
             }
 
-            List<ProductModel> productsToUpdate = new ArrayList<>();
-
             for (AuctionModel auction : auctions) {
-                ProductModel product = productRepository.findById(auction.getProductId())
-                        .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
-
-                if (auction.getWinnerId() != null) {
-                    auction.setStatus(AuctionStatus.COMPLETED);
-                    product.setStatus(ProductStatus.SOLD);
-
-                    OrderModel order = OrderModel.builder()
-                            .auctionId(auction.getId())
-                            .winnerId(auction.getWinnerId())
-                            .totalAmount(auction.getCurrentPrice())
-                            .remainingAmount(auction.getCurrentPrice().subtract(auction.getDepositAmount()))
-                            .status(OrderStatus.PENDING_PAYMENT)
-                            .paymentDeadDate(now.plusDays(3))
-                            .build();
-                    orderRepository.save(order);
-                    log.info("Auction {} COMPLETED. Order created for Winner {}", auction.getId(), auction.getWinnerId());
-
-                    eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), auction.getWinnerId()));
-
-                } else {
-                    auction.setStatus(AuctionStatus.FAILED);
-                    product.setStatus(ProductStatus.APPROVED);
-                    log.info("Auction {} FAILED due to no bids.", auction.getId());
-
-                    eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), null));
-                }
-
-                productsToUpdate.add(product);
+                processCloseAuction(auction);
             }
-
-            auctionRepository.saveAll(auctions);
-            productRepository.saveAll(productsToUpdate);
 
         } while (page.hasNext());
 
         log.info("Finished processing ended auctions.");
+    }
+
+    @Transactional
+    public void execute(java.util.UUID auctionId) {
+        log.info("Attempting to close specific auction ID: {}", auctionId);
+        auctionRepository.findById(auctionId).ifPresent(auction -> {
+            if (auction.getStatus() == AuctionStatus.ACTIVE) {
+                processCloseAuction(auction);
+            } else {
+                log.warn("Auction {} is in state {}, cannot close.", auctionId, auction.getStatus());
+            }
+        });
+    }
+
+    private void processCloseAuction(AuctionModel auction) {
+        LocalDateTime now = LocalDateTime.now();
+        ProductModel product = productRepository.findById(auction.getProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        if (auction.getWinnerId() != null) {
+            auction.setStatus(AuctionStatus.COMPLETED);
+            product.setStatus(ProductStatus.SOLD);
+
+            OrderModel order = OrderModel.builder()
+                    .auctionId(auction.getId())
+                    .winnerId(auction.getWinnerId())
+                    .totalAmount(auction.getCurrentPrice())
+                    .remainingAmount(auction.getCurrentPrice().subtract(auction.getDepositAmount()))
+                    .status(OrderStatus.PENDING_PAYMENT)
+                    .paymentDeadDate(now.plusDays(3))
+                    .build();
+            orderRepository.save(order);
+            log.info("Auction {} COMPLETED. Order created for Winner {}", auction.getId(), auction.getWinnerId());
+
+            eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), auction.getWinnerId()));
+
+        } else {
+            auction.setStatus(AuctionStatus.FAILED);
+            product.setStatus(ProductStatus.APPROVED);
+            log.info("Auction {} FAILED due to no bids.", auction.getId());
+
+            eventPublisher.publishEvent(new AuctionFinishedEvent(this, auction.getId(), null));
+        }
+
+        auctionRepository.save(auction);
+        productRepository.save(product);
     }
 }

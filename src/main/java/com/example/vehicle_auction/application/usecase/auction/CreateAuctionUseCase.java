@@ -11,11 +11,16 @@ import com.example.vehicle_auction.domain.enums.AuctionStatus;
 import com.example.vehicle_auction.domain.enums.ProductStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.infrastructure.configuration.RabbitMQConfig;
+import com.example.vehicle_auction.infrastructure.messaging.RabbitMQProducer;
+import com.example.vehicle_auction.infrastructure.messaging.dto.AuctionLifecycleMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -27,6 +32,7 @@ public class CreateAuctionUseCase {
     private final AuctionRepository auctionRepository;
     private final ProductRepository productRepository;
     private final AuctionMapper auctionMapper;
+    private final RabbitMQProducer rabbitMQProducer;
 
     public AuctionResponse execute(AuctionRequest request){
         log.info("Starting to create new auction for product ID: {}", request.productId());
@@ -63,6 +69,36 @@ public class CreateAuctionUseCase {
         AuctionModel savedAuction = auctionRepository.save(auction);
         log.info("Successfully created auction with ID: {} for product ID: {}", savedAuction.getId(), product.getId());
 
+        // Schedule START and END via RabbitMQ
+        scheduleAuctionLifecycle(savedAuction);
+
         return auctionMapper.toResponse(savedAuction, productName);
+    }
+
+    private void scheduleAuctionLifecycle(AuctionModel auction) {
+        LocalDateTime now = LocalDateTime.now();
+        
+        // 1. Schedule START
+        long startDelay = Duration.between(now, auction.getStartTime()).toMillis();
+        if (startDelay < 0) startDelay = 0; // Start immediately if time passed
+        
+        rabbitMQProducer.sendDelayedMessage(
+                RabbitMQConfig.RK_AUCTION_LIFECYCLE,
+                new AuctionLifecycleMessage(auction.getId(), "START"),
+                startDelay
+        );
+
+        // 2. Schedule END
+        long endDelay = Duration.between(now, auction.getEndTime()).toMillis();
+        if (endDelay > 0) {
+            rabbitMQProducer.sendDelayedMessage(
+                    RabbitMQConfig.RK_AUCTION_LIFECYCLE,
+                    new AuctionLifecycleMessage(auction.getId(), "END"),
+                    endDelay
+            );
+        }
+        
+        log.info("Scheduled START (delay {}ms) and END (delay {}ms) messages for Auction {}", 
+                startDelay, endDelay, auction.getId());
     }
 }

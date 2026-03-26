@@ -18,7 +18,7 @@ public class NotificationUseCase {
     private final NotificationRepository notificationRepository;
 
     @Transactional
-    public void createNotification(UUID receiverAccountId,
+    public NotificationModel createNotification(UUID receiverAccountId,
                                    NotificationType type,
                                    String title,
                                    String content,
@@ -34,7 +34,7 @@ public class NotificationUseCase {
         notification.setReferenceType(referenceType);
         notification.setRead(false);
 
-        notificationRepository.save(notification);
+        return notificationRepository.save(notification);
     }
 
     public List<NotificationModel> getMyNotifications(UUID myAccountId) {

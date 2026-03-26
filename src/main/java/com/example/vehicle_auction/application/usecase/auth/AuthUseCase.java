@@ -1,9 +1,6 @@
 package com.example.vehicle_auction.application.usecase.auth;
 
-import com.example.vehicle_auction.application.dto.auth.AuthResponse;
-import com.example.vehicle_auction.application.dto.auth.LoginRequest;
-import com.example.vehicle_auction.application.dto.auth.ResetPasswordRequest;
-import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.dto.auth.*;
 import com.example.vehicle_auction.application.usecase.mail.SendRegistrationEmailUseCase;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
@@ -22,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -64,8 +62,9 @@ public class AuthUseCase {
         account.setActive(true);
         account.setVerified(false);
 
-        String token = UUID.randomUUID().toString();
-        account.setVerificationToken(token);
+        String otp = generateOTP();
+        account.setVerificationToken(otp);
+        account.setVerificationTokenExpiry(LocalDateTime.now().plusMinutes(5));
 
         account.setSystem(false);
 
@@ -88,11 +87,9 @@ public class AuthUseCase {
         String fullName = req.firstName() + " " + req.lastName();
         String subject = "Verify your Vehicle Auction Account";
 
-        String verificationLink = apiBaseUrl + "/api/v1/auth/verify?token=" + token;
-
         String body = "Hello " + fullName + ",\n\n" +
-                "Welcome to Vehicle Auction Please click the link below to verify your account:\n" +
-                verificationLink + "\n\n" +
+                "Welcome to Vehicle Auction. Your verification code is: " + otp + "\n" +
+                "This code is valid for 5 minutes.\n\n" +
                 "Happy Bidding!";
 
         sendRegistrationEmailUseCase.execute(req.email(), fullName, subject, body);
@@ -168,16 +165,25 @@ public class AuthUseCase {
     }
 
     @Transactional
-    public void verifyAccount(String token) {
-        AccountModel account = accountRepository.findByVerificationToken(token)
-                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_INVALID_VERIFICATION_TOKEN));
+    public void verifyAccount(VerifyAccountRequest req) {
+        AccountModel account = accountRepository.findByEmail(req.email())
+                .orElseThrow(() -> new AppException(ErrorCode.ACCOUNT_NOT_FOUND)); // Bạn cần định nghĩa thêm ErrorCode này nếu chưa có
 
         if (account.isVerified()) {
             throw new AppException(ErrorCode.ACCOUNT_ALREADY_VERIFIED);
         }
 
+        if (account.getVerificationToken() == null || !account.getVerificationToken().equals(req.otp())) {
+            throw new AppException(ErrorCode.ACCOUNT_INVALID_VERIFICATION_TOKEN);
+        }
+
+        if (account.getVerificationTokenExpiry() != null && LocalDateTime.now().isAfter(account.getVerificationTokenExpiry())) {
+            throw new AppException(ErrorCode.ACCOUNT_VERIFICATION_TOKEN_EXPIRED); // Định nghĩa thêm ErrorCode này
+        }
+
         account.setVerified(true);
         account.setVerificationToken(null);
+        account.setVerificationTokenExpiry(null);
 
         accountRepository.save(account);
     }
@@ -188,5 +194,11 @@ public class AuthUseCase {
         String refreshToken = jwtService.generateRefreshToken(userDetails);
 
         return new AuthResponse(accessToken, refreshToken, "Bearer");
+    }
+
+    private String generateOTP() {
+        SecureRandom random = new SecureRandom();
+        int otp = 100000 + random.nextInt(900000);
+        return String.valueOf(otp);
     }
 }

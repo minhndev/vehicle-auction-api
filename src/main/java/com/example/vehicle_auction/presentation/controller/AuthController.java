@@ -65,9 +65,10 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Password has been reset successfully."));
     }
 
-    @GetMapping("/verify")
-    public ResponseEntity<String> verifyAccount(@RequestParam("token") String token) {
-        authUseCase.verifyAccount(token);
-        return ResponseEntity.ok("Account verified successfully!");
+    @PostMapping("/verify")
+    @Operation(summary = "Verify account using OTP")
+    public ResponseEntity<MessageResponse> verifyAccount(@RequestBody @Valid VerifyAccountRequest request) {
+        authUseCase.verifyAccount(request);
+        return ResponseEntity.ok(new MessageResponse("Account verified successfully!"));
     }
 }

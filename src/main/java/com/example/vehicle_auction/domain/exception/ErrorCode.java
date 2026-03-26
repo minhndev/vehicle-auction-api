@@ -30,6 +30,8 @@ public enum ErrorCode {
     ACCOUNT_INVALID_RESET_TOKEN("ACCOUNT_400", "account.invalid.reset_token", HttpStatus.BAD_REQUEST),
     ACCOUNT_RESET_TOKEN_EXPIRED("ACCOUNT_401", "account.reset_token.expired", HttpStatus.UNAUTHORIZED),
     ACCOUNT_CONFIRM_PASSWORD_INVALID("ACCOUNT_400", "account.confirm_password.invalid", HttpStatus.BAD_REQUEST),
+    ACCOUNT_NOT_FOUND("ACCOUNT_404", "account.not.found", HttpStatus.BAD_REQUEST),
+    ACCOUNT_VERIFICATION_TOKEN_EXPIRED("ACCOUNT_400", "account.verification_token.expired", HttpStatus.BAD_REQUEST),
 
     USER_NOT_FOUND("USER_404", "user.not.found", HttpStatus.NOT_FOUND),
 
@@ -68,6 +70,8 @@ public enum ErrorCode {
     ORDER_PAYMENT_EXPIRED("ORD_003", "order.payment.expired", HttpStatus.GONE),
     ORDER_CANNOT_BE_UPDATED("ORD_004", "order.cannot.be.updated", HttpStatus.BAD_REQUEST),
     SHIPPING_INFO_REQUIRED("ORD_005", "order.shipping_info.required", HttpStatus.BAD_REQUEST),
+
+    CONTACT_NOT_FOUND("CONTACT_404", "contact.not.found", HttpStatus.NOT_FOUND),
 
 
     // File

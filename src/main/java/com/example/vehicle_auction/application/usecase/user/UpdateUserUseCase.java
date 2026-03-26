@@ -28,10 +28,7 @@ public class UpdateUserUseCase {
         UserModel user = userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.updateProfile(req.firstName(), req.lastName(), req.phoneNumber(), req.address());
-
-        if (req.avatarURL() != null && !req.avatarURL().isBlank())
-            user.setAvatarURL(req.avatarURL());
+        user.updateProfile(req.firstName(), req.lastName(), req.phoneNumber(), req.address(), req.identityNumber(), req.avatarURL());
 
         if (req.roleNames() != null && !req.roleNames().isEmpty() && user.getAccount() != null) {
             Set<RoleModel> roles = req.roleNames().stream()

@@ -23,6 +23,9 @@ public record UpdateUserRequest(
         @Schema(description = "Physical address", example = "123 Main St, Springfield")
         String address,
 
+        @Schema(description = "User's identity number (CCCD/ID card)", example = "012345678901")
+        String identityNumber,
+
         @Schema(description = "URL to the user's avatar image", example = "https://example.com/avatar.jpg")
         String avatarURL,
 

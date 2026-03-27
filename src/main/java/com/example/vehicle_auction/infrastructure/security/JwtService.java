@@ -5,11 +5,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -19,7 +22,23 @@ public class JwtService {
     private final JwtProperties jwtProperties;
 
     public String generateAccessToken(UserDetails userDetails) {
-        return buildToken(Map.of(), userDetails.getUsername(),
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        extraClaims.put("accountId", customUserDetails.getAccount().getId());
+
+        List<String> roles = customUserDetails.getAccount().getRoles().stream()
+                .map(role -> role.getName())
+                .toList();
+        extraClaims.put("roles", roles);
+
+        List<String> permissions = customUserDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+        extraClaims.put("permissions", permissions);
+
+        return buildToken(extraClaims, userDetails.getUsername(),
                 jwtProperties.accessExpiration(), jwtProperties.accessSecret());
     }
 
@@ -45,6 +64,14 @@ public class JwtService {
 
     public String extractUsername(String token, boolean isRefreshToken) {
         return extractClaim(token, Claims::getSubject, isRefreshToken);
+    }
+
+    public String extractAccountId(String accessToken) {
+        Object accountId = extractAllClaims(accessToken, false).get("accountId");
+        if (accountId == null) {
+            throw new IllegalArgumentException("Missing accountId claim");
+        }
+        return accountId.toString();
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver, boolean isRefreshToken) {

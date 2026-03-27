@@ -1,15 +1,16 @@
 package com.example.vehicle_auction.application.usecase.deposit;
 
 import com.example.vehicle_auction.application.dto.deposit.DepositRequest;
-import com.example.vehicle_auction.application.dto.deposit.DepositResponse;
-import com.example.vehicle_auction.application.mapper.DepositMapper;
+import com.example.vehicle_auction.application.dto.payment.CreatePaymentCommand;
+import com.example.vehicle_auction.application.dto.payment.PaymentResponse;
+import com.example.vehicle_auction.application.usecase.payment.CreatePaymentUseCase;
 import com.example.vehicle_auction.domain.enums.DepositStatus;
 import com.example.vehicle_auction.domain.exception.AppException;
 import com.example.vehicle_auction.domain.exception.ErrorCode;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Auction;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Deposit;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAuctionRepository;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaDepositRepository;
+import com.example.vehicle_auction.domain.model.AuctionModel;
+import com.example.vehicle_auction.domain.model.DepositModel;
+import com.example.vehicle_auction.domain.repository.AuctionRepository;
+import com.example.vehicle_auction.domain.repository.DepositRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,37 +23,39 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CreateDepositUseCase {
 
-    private final JpaAuctionRepository auctionRepository;
-    private final JpaDepositRepository depositRepository;
-    private final DepositMapper depositMapper;
+    private final AuctionRepository auctionRepository;
+    private final DepositRepository depositRepository;
+    private final CreatePaymentUseCase createPaymentUseCase;
 
     @Transactional
-    public DepositResponse execute(DepositRequest request, UUID accountId) {
-        // Kiểm tra phiên đấu giá tồn tại không
-        Auction auction = auctionRepository.findById(request.auctionId())
+    public PaymentResponse execute(DepositRequest request, UUID accountId, String ipAddress) {
+        AuctionModel auction = auctionRepository.findById(request.auctionId())
                 .orElseThrow(() -> new AppException(ErrorCode.AUCTION_NOT_FOUND));
 
-        // Kiểm tra xem user này đã nộp cọc chưa
-        boolean hasPaid = depositRepository.existsByAuctionIdAndAccountIdAndStatus(
-                request.auctionId(), accountId, DepositStatus.PAID
-        );
-        if (hasPaid) {
+        if (depositRepository.hasPaidDeposit(request.auctionId(), accountId)) {
             throw new AppException(ErrorCode.DEPOSIT_ALREADY_PAID);
         }
 
-        // 3. Giả lập thanh toán thành công và tạo bản ghi Deposit
-        Deposit deposit = Deposit.builder()
+        DepositModel deposit = DepositModel.builder()
                 .accountId(accountId)
                 .auctionId(auction.getId())
                 .amount(auction.getDepositAmount())
-                .status(DepositStatus.PAID)
-                .paymentMethod(request.paymentMethod() != null ? request.paymentMethod() : "MOCK_PAYMENT")
-                .transactionReference("TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase())
+                .status(DepositStatus.PENDING)
+                .paymentMethod("VNPAY")
                 .build();
 
-        Deposit savedDeposit = depositRepository.save(deposit);
-        log.info("Account {} successfully paid deposit for Auction {}", accountId, auction.getId());
+        DepositModel savedDeposit = depositRepository.save(deposit);
 
-        return depositMapper.toResponse(savedDeposit);
+        log.info("Account {} created PENDING deposit for Auction {}", accountId, auction.getId());
+
+        CreatePaymentCommand command = new CreatePaymentCommand(
+                accountId,
+                savedDeposit.getId(),
+                "DEPOSIT",
+                auction.getDepositAmount().longValue(),
+                ipAddress
+        );
+
+        return createPaymentUseCase.execute(command);
     }
 }

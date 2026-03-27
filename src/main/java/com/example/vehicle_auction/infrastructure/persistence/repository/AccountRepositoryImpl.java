@@ -61,4 +61,34 @@ public class AccountRepositoryImpl implements AccountRepository {
         return jpaAccountRepository.findById(id)
                 .map(accountEntityMapper::toDomain);
     }
+
+    @Override
+    public Optional<AccountModel> findByEmailAndDeletedFalse(String email) {
+        return jpaAccountRepository.findByEmailAndDeletedFalse(email)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<AccountModel> findByIdAndDeletedTrue(UUID id) {
+        return jpaAccountRepository.findByIdAndDeletedTrue(id)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<AccountModel> findByIdAndDeletedFalse(UUID id) {
+        return jpaAccountRepository.findByIdAndDeletedFalse(id)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<AccountModel> findByVerificationToken(String token) {
+        return jpaAccountRepository.findByVerificationToken(token)
+                .map(accountEntityMapper::toDomain);
+    }
+
+    @Override
+    public Optional<AccountModel> findByResetPasswordToken(String token) {
+        return jpaAccountRepository.findByResetPasswordToken(token)
+                .map(accountEntityMapper::toDomain);
+    }
 }

@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS categories (
 
 CREATE TABLE IF NOT EXISTS products (
     id UUID PRIMARY KEY,
+    seller_id UUID NOT NULL,
     category_id UUID NOT NULL REFERENCES categories(id),
     name VARCHAR(255) NOT NULL,
     brand VARCHAR(100),
@@ -29,6 +30,7 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT,
     start_price NUMERIC(19,2),
     status VARCHAR(20),
+    version INTEGER,
     is_active BOOLEAN NOT NULL,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
     deleted_at TIMESTAMP,

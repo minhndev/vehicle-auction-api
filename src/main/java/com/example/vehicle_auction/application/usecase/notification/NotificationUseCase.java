@@ -18,7 +18,7 @@ public class NotificationUseCase {
     private final NotificationRepository notificationRepository;
 
     @Transactional
-    public void createNotification(UUID receiverAccountId,
+    public NotificationModel createNotification(UUID receiverAccountId,
                                    NotificationType type,
                                    String title,
                                    String content,
@@ -34,7 +34,7 @@ public class NotificationUseCase {
         notification.setReferenceType(referenceType);
         notification.setRead(false);
 
-        notificationRepository.save(notification);
+        return notificationRepository.save(notification);
     }
 
     public List<NotificationModel> getMyNotifications(UUID myAccountId) {
@@ -50,7 +50,7 @@ public class NotificationUseCase {
         NotificationModel notification = notificationRepository.findById(notificationId.toString())
                 .orElseThrow(() -> new AppException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        if (!notification.getAccountId().equals(myAccountId)) {
+        if (!notification.getAccountId().equals(myAccountId.toString())) {
             throw new AppException(ErrorCode.FORBIDDEN_EXCEPTION);
         }
 

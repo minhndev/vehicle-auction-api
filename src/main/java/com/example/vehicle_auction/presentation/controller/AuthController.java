@@ -1,20 +1,16 @@
 package com.example.vehicle_auction.presentation.controller;
 
-import com.example.vehicle_auction.application.dto.auth.AuthResponse;
-import com.example.vehicle_auction.application.dto.auth.LoginRequest;
-import com.example.vehicle_auction.application.dto.auth.RefreshTokenRequest;
-import com.example.vehicle_auction.application.dto.auth.RegisterRequest;
+import com.example.vehicle_auction.application.dto.auth.*;
+import com.example.vehicle_auction.application.dto.common.MessageResponse;
 import com.example.vehicle_auction.application.usecase.auth.AuthUseCase;
+import com.example.vehicle_auction.application.usecase.auth.GoogleAuthUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Authentication", description = "APIs related to user authentication")
 public class AuthController {
     private final AuthUseCase authUseCase;
+    private final GoogleAuthUseCase googleAuthUseCase;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new account")
@@ -35,6 +32,13 @@ public class AuthController {
         return ResponseEntity.ok(authUseCase.login(request));
     }
 
+    @PostMapping("/google-login")
+    @Operation(summary = "Login with Google ID Token fron Frontend")
+    public ResponseEntity<AuthResponse> authenticateWithGoogle(@RequestBody @Valid GoogleLoginRequest request) {
+        AuthResponse response = googleAuthUseCase.authenticate(request.idToken());
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/refresh-token")
     @Operation(summary = "Reissue a new Access Token using Refresh Token.")
     public ResponseEntity<AuthResponse> refreshToken(@RequestBody @Valid RefreshTokenRequest request) {
@@ -45,5 +49,26 @@ public class AuthController {
     @Operation(summary = "Logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request password reset link")
+    public ResponseEntity<MessageResponse> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authUseCase.forgotPassword(request.email());
+        return ResponseEntity.ok(new MessageResponse("If the email exists, a reset link has been sent."));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password with token")
+    public ResponseEntity<MessageResponse> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authUseCase.resetPassword(request);
+        return ResponseEntity.ok(new MessageResponse("Password has been reset successfully."));
+    }
+
+    @PostMapping("/verify")
+    @Operation(summary = "Verify account using OTP")
+    public ResponseEntity<MessageResponse> verifyAccount(@RequestBody @Valid VerifyAccountRequest request) {
+        authUseCase.verifyAccount(request);
+        return ResponseEntity.ok(new MessageResponse("Account verified successfully!"));
     }
 }

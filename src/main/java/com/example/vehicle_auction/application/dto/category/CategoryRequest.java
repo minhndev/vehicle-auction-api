@@ -14,4 +14,5 @@ public record CategoryRequest(
         @Schema(description = "Description of the category", example = "Dòng xe thể thao đa dụng 7 chỗ ngồi")
         @Size(max = 250, message = "{category.description.size}")
         String description
+
 ) { }

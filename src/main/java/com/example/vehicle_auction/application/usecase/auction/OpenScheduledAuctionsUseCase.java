@@ -1,8 +1,8 @@
 package com.example.vehicle_auction.application.usecase.auction;
 
 import com.example.vehicle_auction.domain.enums.AuctionStatus;
-import com.example.vehicle_auction.infrastructure.persistence.entity.Auction;
-import com.example.vehicle_auction.infrastructure.persistence.repository.jpa.JpaAuctionRepository;
+import com.example.vehicle_auction.domain.model.AuctionModel;
+import com.example.vehicle_auction.domain.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,11 +15,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OpenScheduledAuctionsUseCase {
 
-    private final JpaAuctionRepository auctionRepository;
+    private final AuctionRepository auctionRepository;
 
     public void execute() {
         LocalDateTime now = LocalDateTime.now();
-        List<Auction> auctionsToOpen = auctionRepository.findAuctionsToOpen(AuctionStatus.UPCOMING, now);
+        List<AuctionModel> auctionsToOpen = auctionRepository.findAuctionsToOpen(AuctionStatus.UPCOMING, now);
 
         if (!auctionsToOpen.isEmpty()) {
             auctionsToOpen.forEach(auction -> {
@@ -28,6 +28,19 @@ public class OpenScheduledAuctionsUseCase {
             });
             auctionRepository.saveAll(auctionsToOpen);
         }
+    }
+
+    public void execute(java.util.UUID auctionId) {
+        log.info("Attempting to open specific auction ID: {}", auctionId);
+        auctionRepository.findById(auctionId).ifPresent(auction -> {
+            if (auction.getStatus() == AuctionStatus.UPCOMING) {
+                auction.setStatus(AuctionStatus.ACTIVE);
+                auctionRepository.save(auction);
+                log.info("Auction with ID {} status changed to ACTIVE via Event", auction.getId());
+            } else {
+                log.warn("Auction {} is in state {}, cannot open.", auctionId, auction.getStatus());
+            }
+        });
     }
 
 }

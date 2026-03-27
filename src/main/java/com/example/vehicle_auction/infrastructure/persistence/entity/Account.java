@@ -16,11 +16,23 @@ public class Account extends FullEntity {
     @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(name = "password", length = 255)
+    @Column(name = "password", length = 250)
     private String password;
 
     @Column(name = "is_verified", nullable = false)
     private boolean verified = false;
+
+    @Column(name = "verification_token")
+    private String verificationToken;
+
+    @Column(name = "verification_token_expiry")
+    private LocalDateTime verificationTokenExpiry;
+
+    @Column(name = "reset_password_token")
+    private String resetPasswordToken;
+
+    @Column(name = "reset_password_token_expiry")
+    private LocalDateTime resetPasswordTokenExpiry;
 
     @Column(name = "failed_attempt_count", nullable = false)
     private int failedAttemptCount = 0;

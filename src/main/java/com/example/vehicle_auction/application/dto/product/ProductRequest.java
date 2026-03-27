@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import org.hibernate.annotations.Check;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,7 +28,30 @@ public record ProductRequest(
         @NotBlank(message = "{product.model.required}")
         String model,
 
-        @Schema(description = "Vehicle Identification Number - Must be unique", example = "JTDKB46K803123456")
+        @Schema(example = "Red")
+        @NotBlank(message = "{product.color.required}")
+        String color,
+
+        @Schema(description = "Engine number of the vehicle", example = "2AR-XXXXXXX")
+        @NotBlank(message = "{product.engineNumber.required}")
+        String engineNumber,
+
+        @Schema(description = "License plate number", example = "60-AA123.45")
+        @NotBlank(message = "{product.licensePlate.required}")
+        String licensePlate,
+
+        @Schema(description = "Transmission type (e.g., Automatic, Manual)", example = "Automatic")
+        @NotBlank(message = "{product.transmission.required}")
+        String transmission,
+
+        @Schema(description = "Fuel type (e.g., Gasoline, Diesel, Electric)", example = "Gasoline")
+        @NotBlank(message = "{product.fuelType.required}")
+        String fuelType,
+
+        @Schema(description = "Detailed description of the vehicle", example = "Well-maintained, single owner, no accidents.")
+        String description,
+
+        @Schema(description = "Vehicle Identification Number - Must be unique", example = "RL4XW43G869205813")
         @NotBlank(message = "{product.vin.required}")
         String vinNumber,
 

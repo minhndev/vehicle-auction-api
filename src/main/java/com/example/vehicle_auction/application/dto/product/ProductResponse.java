@@ -9,10 +9,21 @@ import java.util.UUID;
 
 public record ProductResponse(
         UUID id,
+        UUID sellerId,
+        String createdBy,
         String name,
         String brand,
         String model,
         String vinNumber,
+
+        String color,
+        String engineNumber,
+        String licensePlate,
+        String transmission,
+        String fuelType,
+        String description,
+        Integer manufactureYear,
+        Integer mileage,
         BigDecimal startPrice,
         ProductStatus status,
         UUID categoryId,

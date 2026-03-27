@@ -1,10 +1,7 @@
 FROM rabbitmq:3.13-management
 
-# Install curl/wget to download the plugin
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Download the delayed message exchange plugin
 RUN curl -L https://github.com/rabbitmq/rabbitmq-delayed-message-exchange/releases/download/v3.13.0/rabbitmq_delayed_message_exchange-3.13.0.ez > /plugins/rabbitmq_delayed_message_exchange-3.13.0.ez
 
-# Enable the plugin
 RUN rabbitmq-plugins enable --offline rabbitmq_delayed_message_exchange

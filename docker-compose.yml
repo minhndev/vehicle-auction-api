@@ -59,6 +59,7 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
+      - frontend-network
       - backend-network
     deploy:
       resources:

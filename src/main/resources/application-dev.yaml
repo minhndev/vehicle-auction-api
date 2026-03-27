@@ -58,6 +58,7 @@ spring:
 
 minio:
   endpoint: ${S3_ENDPOINT}
+  external-endpoint: ${S3_EXTERNAL_ENDPOINT:http://localhost:9090}
   bucket-name: ${S3_BUCKET_NAME}
   region: ${S3_REGION}
   access-key: ${MINIO_ROOT_USER}

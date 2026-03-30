@@ -6,6 +6,7 @@ import com.example.vehicle_auction.domain.repository.AuctionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class OpenScheduledAuctionsUseCase {
 
     private final AuctionRepository auctionRepository;

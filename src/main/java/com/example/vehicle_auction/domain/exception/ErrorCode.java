@@ -50,9 +50,11 @@ public enum ErrorCode {
     PRODUCT_NOT_APPROVED("PRD_003", "product.not.approved", HttpStatus.BAD_REQUEST),
     INVALID_AUCTION_TIME("AUC_002", "auction.time.invalid", HttpStatus.BAD_REQUEST),
     AUCTION_OVERLAPS("AUC_003", "auction.overlaps", HttpStatus.CONFLICT),
-    AUCTION_NOT_ACTIVE("AUC_004", "auction.not.active", HttpStatus.BAD_REQUEST),
-    AUCTION_CANNOT_CANCEL("AUC_005", "auction.cannot.cancel", HttpStatus.BAD_REQUEST),
-    UNAUTHORIZED_ACTION("AUC_006", "auction.unauthorized.action", HttpStatus.FORBIDDEN),
+    AUCTION_UPCOMING("AUC_004", "auction.upcoming", HttpStatus.BAD_REQUEST),
+    AUCTION_ENDED("AUC_005", "auction.ended", HttpStatus.BAD_REQUEST),
+    AUCTION_SUSPENDED("AUC_006", "auction.suspended", HttpStatus.BAD_REQUEST),
+    AUCTION_CANNOT_CANCEL("AUC_007", "auction.cannot.cancel", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED_ACTION("AUC_008", "auction.unauthorized.action", HttpStatus.FORBIDDEN),
 
     DEPOSIT_REQUIRED("BID_001", "bid.deposit.required", HttpStatus.FORBIDDEN),
     DEPOSIT_ALREADY_PAID("BID_003", "deposit.already.paid", HttpStatus.CONFLICT),
@@ -72,7 +74,6 @@ public enum ErrorCode {
     SHIPPING_INFO_REQUIRED("ORD_005", "order.shipping_info.required", HttpStatus.BAD_REQUEST),
 
     CONTACT_NOT_FOUND("CONTACT_404", "contact.not.found", HttpStatus.NOT_FOUND),
-
 
     // File
     FILE_UPLOAD_FAILED("FILE_001", "file.upload.failed", HttpStatus.INTERNAL_SERVER_ERROR),

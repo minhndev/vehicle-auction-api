@@ -15,19 +15,19 @@ public class AuctionScheduler {
     private final OpenScheduledAuctionsUseCase openScheduledAuctionsUseCase;
     private final CloseEndedAuctionsUseCase closeEndedAuctionsUseCase;
 
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 3000)
     public void processAuctionLifecycle() {
         log.info("Running Safety Net Auction Lifecycle (every 5 mins)...");
 
         try {
             openScheduledAuctionsUseCase.execute();
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Error while opening scheduled auctions", e);
         }
 
         try {
             closeEndedAuctionsUseCase.execute();
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Error while closing ended auctions", e);
         }
     }

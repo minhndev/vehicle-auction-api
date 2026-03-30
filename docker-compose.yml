@@ -7,6 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
+      TZ: ${TIME_ZONE:-Asia/Ho_Chi_Minh}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -21,6 +22,8 @@ services:
     image: mongo:6.0
     container_name: auction-mongodb
     restart: always
+    environment:
+      TZ: ${TIME_ZONE:-Asia/Ho_Chi_Minh}
     volumes:
       - mongo_data:/data/db
     networks:
@@ -36,6 +39,8 @@ services:
     container_name: auction-redis
     restart: always
     command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      TZ: ${TIME_ZONE:-Asia/Ho_Chi_Minh}
     volumes:
       - redis_data:/data
     networks:
@@ -56,6 +61,7 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS}
+      TZ: ${TIME_ZONE:-Asia/Ho_Chi_Minh}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     networks:
@@ -97,6 +103,7 @@ services:
       SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USER}
       SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASS}
       S3_ENDPOINT: http://minio:9090
+      TZ: ${TIME_ZONE:-Asia/Ho_Chi_Minh}
     networks:
       - frontend-network
       - backend-network
@@ -117,6 +124,7 @@ services:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
       MINIO_LICENSE: ${MINIO_LICENSE}
+      TZ: ${TIME_ZONE:-Asia/Ho_Chi_Minh}
     volumes:
       - minio_data:/data
     command: server /data --address ":9090" --console-address ":9001"

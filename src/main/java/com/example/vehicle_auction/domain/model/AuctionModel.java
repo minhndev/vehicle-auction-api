@@ -32,8 +32,17 @@ public class AuctionModel extends AuditModel {
 
     public BidModel placeBid(BigDecimal amount, UUID bidderId, LocalDateTime now) {
         // Validate status and time
-        if (status != AuctionStatus.ACTIVE || now.isBefore(startTime) || now.isAfter(endTime)) {
-            throw new AppException(ErrorCode.AUCTION_NOT_ACTIVE);
+        if (status == AuctionStatus.SUSPENDED) {
+            throw new AppException(ErrorCode.AUCTION_SUSPENDED);
+        }
+        if (now.isBefore(startTime)) {
+            throw new AppException(ErrorCode.AUCTION_UPCOMING, startTime);
+        }
+        if (now.isAfter(endTime) || status == AuctionStatus.CLOSED) {
+            throw new AppException(ErrorCode.AUCTION_ENDED, endTime);
+        }
+        if (status != AuctionStatus.ACTIVE) {
+            throw new AppException(ErrorCode.AUCTION_UPCOMING); // Fallback
         }
 
         // Validate bid increment

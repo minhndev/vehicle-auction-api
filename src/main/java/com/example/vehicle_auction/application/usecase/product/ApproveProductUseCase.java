@@ -1,0 +1,47 @@
+package com.example.vehicle_auction.application.usecase.product;
+
+import com.example.vehicle_auction.application.dto.product.ProductResponse;
+import com.example.vehicle_auction.application.mapper.ProductMapper;
+import com.example.vehicle_auction.domain.enums.ProductStatus;
+import com.example.vehicle_auction.domain.exception.AppException;
+import com.example.vehicle_auction.domain.exception.ErrorCode;
+import com.example.vehicle_auction.domain.model.ProductModel;
+import com.example.vehicle_auction.domain.repository.ProductRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ApproveProductUseCase {
+
+    private final ProductRepository productRepository;
+    private final ProductMapper productMapper;
+
+    @Transactional
+    public ProductResponse execute(UUID productId) {
+        log.info("Starting to approve product with ID: {}", productId);
+
+        // Find the product by ID
+        ProductModel product = productRepository.findByIdAndDeletedFalse(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_FOUND));
+
+        // Update the product status to APPROVED
+        if (product.getStatus() != ProductStatus.PENDING){
+            log.warn("Cannot approve product with ID {} because it is not in PENDING status. Current status: {}",
+                    productId, product.getStatus());
+            throw new AppException(ErrorCode.PRODUCT_NOT_PENDING);
+        }
+        product.setStatus(ProductStatus.APPROVED);
+
+        // Save the updated product
+        ProductModel updatedProduct = productRepository.save(product);
+        log.info("Product with ID: {} has been APPROVED", updatedProduct.getId());
+
+        return productMapper.toResponse(updatedProduct);
+    }
+}

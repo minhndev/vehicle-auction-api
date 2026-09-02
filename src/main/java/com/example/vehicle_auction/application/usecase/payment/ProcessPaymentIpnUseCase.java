@@ -1,0 +1,147 @@
+package com.example.vehicle_auction.application.usecase.payment;
+
+import com.example.vehicle_auction.application.dto.payment.IpnResponse;
+import com.example.vehicle_auction.application.port.out.PaymentGatewayPort;
+import com.example.vehicle_auction.application.port.out.TransactionRepositoryPort;
+import com.example.vehicle_auction.domain.enums.DepositStatus;
+import com.example.vehicle_auction.domain.enums.OrderStatus;
+import com.example.vehicle_auction.domain.enums.PaymentStatus;
+import com.example.vehicle_auction.domain.event.DepositPaymentProcessedEvent;
+import com.example.vehicle_auction.domain.model.DepositModel;
+import com.example.vehicle_auction.domain.model.OrderModel;
+import com.example.vehicle_auction.domain.model.TransactionModel;
+import com.example.vehicle_auction.domain.repository.DepositRepository;
+import com.example.vehicle_auction.domain.repository.OrderRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class ProcessPaymentIpnUseCase {
+    private final PaymentGatewayPort paymentGatewayPort;
+    private final TransactionRepositoryPort transactionRepositoryPort;
+    private final DepositRepository depositRepository;
+    private final OrderRepository orderRepository;
+    private final ApplicationEventPublisher eventPublisher;
+
+    @Transactional
+    public IpnResponse execute(Map<String, String> vnpayParams) {
+        if (!paymentGatewayPort.verifyCallback(vnpayParams)) {
+            return new IpnResponse("97", "Invalid Checksum");
+        }
+
+        String txnRef = vnpayParams.get("vnp_TxnRef");
+        String responseCode = vnpayParams.get("vnp_ResponseCode");
+        String vnpPayDate = vnpayParams.get("vnp_PayDate");
+        String vnpTransactionNo = vnpayParams.get("vnp_TransactionNo");
+
+        Optional<TransactionModel> txOptional = transactionRepositoryPort.findByGatewayReference(txnRef);
+        if (txOptional.isEmpty()) {
+            return new IpnResponse("01", "Order not found");
+        }
+
+        TransactionModel transaction = txOptional.get();
+        DepositPaymentProcessedEvent depositEvent = null;
+
+        if (transaction.getStatus() != PaymentStatus.PENDING) {
+            return new IpnResponse("02", "Order already confirmed");
+        }
+
+        long vnpAmount = Long.parseLong(vnpayParams.get("vnp_Amount")) / 100;
+        if (transaction.getAmount() != vnpAmount) {
+            return new IpnResponse("04", "Invalid amount");
+        }
+
+        if ("00".equals(responseCode)) {
+            transaction.markAsSuccess();
+
+            if ("DEPOSIT".equalsIgnoreCase(transaction.getTargetType())) {
+
+                UUID depositId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                DepositModel deposit = depositRepository.findById(depositId)
+                        .orElseThrow(() -> new RuntimeException("Deposit not found"));
+
+                deposit.setStatus(DepositStatus.PAID);
+                deposit.setTransactionReference(txnRef);
+                deposit.setPaymentDate(vnpPayDate);
+                deposit.setGatewayTransactionNo(vnpTransactionNo);
+                depositRepository.save(deposit);
+
+                depositEvent = new DepositPaymentProcessedEvent(
+                        deposit.getAccountId(),
+                        deposit.getAuctionId(),
+                        deposit.getId(),
+                        txnRef,
+                        vnpTransactionNo,
+                        responseCode,
+                        transaction.getStatus(),
+                        deposit.getStatus(),
+                        LocalDateTime.now()
+                );
+
+            } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {
+
+                UUID orderId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                OrderModel order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Order not found"));
+
+                order.setStatus(OrderStatus.PAID);
+                orderRepository.save(order);
+
+            }
+        } else {
+            transaction.markAsFailed();
+
+            if ("DEPOSIT".equalsIgnoreCase(transaction.getTargetType())) {
+
+                UUID depositId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                DepositModel deposit = depositRepository.findById(depositId)
+                        .orElseThrow(() -> new RuntimeException("Deposit not found"));
+
+                deposit.setStatus(DepositStatus.FAILED);
+                depositRepository.save(deposit);
+
+                depositEvent = new DepositPaymentProcessedEvent(
+                        deposit.getAccountId(),
+                        deposit.getAuctionId(),
+                        deposit.getId(),
+                        txnRef,
+                        vnpTransactionNo,
+                        responseCode,
+                        transaction.getStatus(),
+                        deposit.getStatus(),
+                        LocalDateTime.now()
+                );
+
+            } else if ("ORDER".equalsIgnoreCase(transaction.getTargetType())) {
+
+                UUID orderId = UUID.fromString(String.valueOf(transaction.getReferenceId()));
+
+                OrderModel order = orderRepository.findById(orderId)
+                        .orElseThrow(() -> new RuntimeException("Order not found"));
+
+                order.setStatus(OrderStatus.PENDING_PAYMENT);
+                orderRepository.save(order);
+
+            }
+        }
+
+        transactionRepositoryPort.save(transaction);
+        if (depositEvent != null) {
+            eventPublisher.publishEvent(depositEvent);
+        }
+        return new IpnResponse("00", "Confirm Success");
+    }
+}
